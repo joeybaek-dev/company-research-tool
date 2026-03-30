@@ -27,10 +27,17 @@ export default async function handler(req, res) {
     const pageNum = parseInt(page) || 1;
 
     // ── Step 1: 공시 목록에서 기업 추출 ──────────────────────
+    // corp_code 없이 검색 시 3개월 이내만 가능
+    const today = new Date();
+    const threeMonthsAgo = new Date(today);
+    threeMonthsAgo.setMonth(today.getMonth() - 3);
+    const toDate = today.toISOString().slice(0,10).replace(/-/g,"");
+    const fromDate = threeMonthsAgo.toISOString().slice(0,10).replace(/-/g,"");
+
     const listRes = await fetch(
       `${DART_BASE}/list.json?crtfc_key=${DART_KEY}` +
       `&corp_name=${encodeURIComponent(keyword)}` +
-      `&bgn_de=20240101&end_de=20241231` +
+      `&bgn_de=${fromDate}&end_de=${toDate}` +
       `&page_no=1&page_count=100&sort=crp&sort_mth=asc`
     );
     const listData = await listRes.json();
