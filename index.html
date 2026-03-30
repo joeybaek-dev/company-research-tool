@@ -6,7 +6,7 @@
 <title>기업 리서치 툴</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Apple SD Gothic Neo",Pretendard,sans-serif;background:#f1f5f9;min-height:100vh;padding:20px}
+body{font-family:"Apple SD Gothic Neo",sans-serif;background:#f1f5f9;min-height:100vh;padding:20px}
 .wrap{max-width:1000px;margin:0 auto}
 .header{background:linear-gradient(135deg,#0f172a,#1e40af);border-radius:16px;padding:20px 26px;margin-bottom:16px;color:#fff}
 .header h1{font-size:20px;font-weight:800}
@@ -16,65 +16,61 @@ body{font-family:"Apple SD Gothic Neo",Pretendard,sans-serif;background:#f1f5f9;
 .tab.active{background:#1e40af;color:#fff}
 .card{background:#fff;border-radius:14px;padding:20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 input,select{padding:8px 12px;border-radius:8px;border:1.5px solid #e2e8f0;font-size:13px;font-family:inherit}
-input:focus,select:focus{outline:none;border-color:#1e40af}
-.search-input{width:100%;padding:11px 14px;border-radius:10px;font-size:14px;margin-bottom:14px}
-.filter-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.si{width:100%;padding:11px 14px;border-radius:10px;font-size:14px;margin-bottom:14px}
+.fr{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:0}
 .fi{flex:1;min-width:130px}
 .fi label{font-size:11px;color:#94a3b8;display:block;margin-bottom:3px}
-.fi select,.fi input{width:100%}
-.btn{padding:9px 18px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:13px}
-.btn-primary{background:#1e40af;color:#fff}
-.btn-outline{background:#fff;color:#1e40af;border:1.5px solid #1e40af}
-.btn-green{background:#10b981;color:#fff}
-.btn-red{background:#fff;color:#ef4444;border:1.5px solid #fca5a5}
-.btn-gray{background:#f1f5f9;color:#64748b;border:1.5px solid #e2e8f0}
-.btn-sm{padding:6px 12px;font-size:12px}
-.co-card{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border:2px solid transparent}
-.co-card.checked{border-color:#1e40af;background:#fafbff}
-.co-card.saved-co{border-color:#10b981}
+.fi select{width:100%}
+.btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:13px}
+.bp{background:#1e40af;color:#fff}
+.bg{background:#f1f5f9;color:#64748b;border:1.5px solid #e2e8f0}
+.bo{background:#fff;color:#1e40af;border:1.5px solid #1e40af}
+.bge{background:#10b981;color:#fff}
+.bre{background:#fff;color:#ef4444;border:1.5px solid #fca5a5}
+.bs{padding:6px 12px;font-size:12px}
+.co{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border:2px solid transparent}
+.co.ck{border-color:#1e40af;background:#fafbff}
+.co.sv{border-color:#10b981}
 .tag{font-size:11px;padding:2px 8px;border-radius:20px;display:inline-block}
-.metrics{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
-.metric .lbl{font-size:10px;color:#94a3b8}
-.metric .val{font-size:14px;font-weight:800}
-.stats{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-.stat{flex:1;min-width:90px;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.stat .num{font-size:20px;font-weight:800}
-.stat .lbl{font-size:12px;color:#64748b}
-.empty{text-align:center;padding:60px;color:#94a3b8}
-.bulk-bar{display:flex;gap:8px;align-items:center;padding:10px 14px;background:#eff6ff;border-radius:10px;margin-bottom:10px;flex-wrap:wrap}
+.mt{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
+.mt .l{font-size:10px;color:#94a3b8}
+.mt .v{font-size:14px;font-weight:800}
+.bb{display:flex;gap:8px;align-items:center;padding:10px 14px;background:#eff6ff;border-radius:10px;margin-bottom:10px;flex-wrap:wrap}
 input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
-.pagination{display:flex;gap:6px;align-items:center;justify-content:center;margin-top:16px;flex-wrap:wrap}
-.pg-btn{padding:6px 12px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;font-size:13px;cursor:pointer;font-weight:600}
-.pg-btn.active{background:#1e40af;color:#fff;border-color:#1e40af}
-.pg-btn:disabled{opacity:.4;cursor:default}
-.detail-box{margin-top:12px;font-size:12px}
-.detail-info{padding:12px 14px;background:#f8fafc;border-radius:10px;margin-bottom:8px}
-.news-box{padding:12px 14px;background:#fff7ed;border-radius:10px;border:1px solid #fed7aa}
-.news-title{font-weight:700;color:#c2410c;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.news-item{display:flex;gap:8px;align-items:flex-start}
-.news-item+.news-item{margin-top:8px;padding-top:8px;border-top:1px solid #fed7aa}
+.pg{display:flex;gap:6px;align-items:center;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.pb{padding:6px 12px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;font-size:13px;cursor:pointer;font-weight:600}
+.pb.ac{background:#1e40af;color:#fff;border-color:#1e40af}
+.pb:disabled{opacity:.4;cursor:default}
+.empty{text-align:center;padding:60px;color:#94a3b8}
+.di{padding:12px 14px;background:#f8fafc;border-radius:10px;margin-top:10px;font-size:12px}
+.nb{padding:12px 14px;background:#fff7ed;border-radius:10px;border:1px solid #fed7aa;margin-top:8px}
+.nt{font-weight:700;color:#c2410c;margin-bottom:8px;font-size:12px}
+.ni{display:flex;gap:8px;align-items:flex-start;font-size:12px}
+.ni+.ni{margin-top:8px;padding-top:8px;border-top:1px solid #fed7aa}
+.st{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.sc{flex:1;min-width:90px;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.sc .n{font-size:20px;font-weight:800}
+.sc .l{font-size:12px;color:#64748b}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="header">
     <h1>🏢 기업 리서치 & 리스트업 툴</h1>
-    <p>업종 · 임직원 · 상장여부 필터 · 매출/임직원 정렬 · 최근 뉴스 실시간 조회</p>
+    <p>업종 · 임직원 · 상장여부 필터 · 매출/임직원 정렬 · 최근 뉴스 실시간</p>
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('search')">🔍 기업 검색</button>
-    <button class="tab" id="tab-saved" onclick="switchTab('saved')">📋 저장 리스트 (0)</button>
+    <button class="tab active" id="t1" onclick="switchTab('search')">🔍 기업 검색</button>
+    <button class="tab" id="t2" onclick="switchTab('saved')">📋 저장 리스트 (0)</button>
   </div>
 
-  <!-- 검색 탭 -->
-  <div id="panel-search">
+  <div id="ps">
     <div class="card">
-      <input type="text" class="search-input" id="kw" placeholder="🔍 기업명 검색..." oninput="applyFilter()"/>
-      <div class="filter-row">
-        <div class="fi">
-          <label>업종</label>
-          <select id="f-ind" onchange="applyFilter()">
+      <input type="text" class="si" id="kw" placeholder="🔍 기업명 검색..."/>
+      <div class="fr">
+        <div class="fi"><label>업종</label>
+          <select id="fi">
             <option value="">전체</option>
             <option value="IT/SW">IT/SW</option>
             <option value="바이오/헬스케어">바이오/헬스케어</option>
@@ -86,28 +82,25 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
             <option value="미디어/콘텐츠">미디어/콘텐츠</option>
           </select>
         </div>
-        <div class="fi">
-          <label>임직원 수</label>
-          <select id="f-emp" onchange="applyFilter()">
+        <div class="fi"><label>임직원 수</label>
+          <select id="fe">
             <option value="">전체</option>
-            <option value="0-100">100명 이하</option>
-            <option value="100-500">100~500명</option>
-            <option value="500-1000">500~1000명</option>
-            <option value="1000-5000">1000~5000명</option>
-            <option value="5000-">5000명 이상</option>
+            <option value="0,100">100명 이하</option>
+            <option value="100,500">100~500명</option>
+            <option value="500,1000">500~1000명</option>
+            <option value="1000,5000">1000~5000명</option>
+            <option value="5000,999999">5000명 이상</option>
           </select>
         </div>
-        <div class="fi">
-          <label>상장 여부</label>
-          <select id="f-listed" onchange="applyFilter()">
+        <div class="fi"><label>상장 여부</label>
+          <select id="fl">
             <option value="">전체</option>
             <option value="Y">상장사</option>
             <option value="N">비상장사</option>
           </select>
         </div>
-        <div class="fi">
-          <label>정렬</label>
-          <select id="f-sort" onchange="applyFilter()">
+        <div class="fi"><label>정렬</label>
+          <select id="fs">
             <option value="revenue_desc">매출액 높은 순</option>
             <option value="revenue_asc">매출액 낮은 순</option>
             <option value="employees_desc">임직원 많은 순</option>
@@ -118,353 +111,293 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
       </div>
     </div>
 
-    <div id="bulk-bar" class="bulk-bar" style="display:none">
-      <input type="checkbox" id="chk-all" onchange="togglePageSelect(this.checked)"/>
+    <div class="bb" id="bb" style="display:none">
+      <input type="checkbox" id="ca" onchange="selPage(this.checked)"/>
       <span style="font-size:13px;color:#1e40af;font-weight:600">현재 페이지 전체선택</span>
-      <span id="chk-count" style="font-size:12px;color:#64748b"></span>
-      <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-outline btn-sm" onclick="selectAllPages()">전체 페이지 선택</button>
-        <button class="btn btn-primary btn-sm" onclick="saveChecked()">✚ 선택 저장</button>
+      <span id="cc" style="font-size:12px;color:#64748b"></span>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn bo bs" onclick="selAll()">전체 페이지 선택</button>
+        <button class="btn bp bs" onclick="saveSel()">✚ 선택 저장</button>
       </div>
     </div>
 
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
-      <span id="result-count" style="font-size:13px;color:#64748b"></span>
+    <div style="margin-bottom:8px">
+      <span id="rc" style="font-size:13px;color:#64748b"></span>
     </div>
-
-    <div id="co-list"></div>
-    <div id="pagination" class="pagination"></div>
+    <div id="cl"></div>
+    <div id="pg" class="pg"></div>
   </div>
 
-  <!-- 저장 탭 -->
-  <div id="panel-saved" style="display:none">
-    <div class="stats" id="saved-stats"></div>
-    <div style="display:flex;gap:8px;margin-bottom:14px;justify-content:flex-end;flex-wrap:wrap">
-      <button class="btn btn-green btn-sm" onclick="exportCSV()">📥 CSV 내보내기</button>
-      <button class="btn btn-red btn-sm" onclick="clearAll()">전체 삭제</button>
+  <div id="pv" style="display:none">
+    <div class="st" id="ss"></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;justify-content:flex-end">
+      <button class="btn bge bs" onclick="expCSV()">📥 CSV 내보내기</button>
+      <button class="btn bre bs" onclick="clrAll()">전체 삭제</button>
     </div>
-    <div id="saved-list"></div>
+    <div id="sl"></div>
   </div>
 </div>
 
 <script>
-// ─── 샘플 데이터 (실제 한국 기업 기반) ──────────────────────
-const DATA = [
-  {id:"001",name:"삼성전자",ind:"제조업",region:"경기",listed:true,revenue:3005000,employees:124800,founded:1969,desc:"글로벌 반도체·가전 1위"},
-  {id:"002",name:"SK하이닉스",ind:"제조업",region:"경기",listed:true,revenue:660000,employees:30000,founded:1983,desc:"메모리 반도체 전문기업"},
-  {id:"003",name:"셀트리온",ind:"바이오/헬스케어",region:"인천",listed:true,revenue:235000,employees:4200,founded:2002,desc:"바이오시밀러 글로벌 선도"},
-  {id:"004",name:"삼성바이오로직스",ind:"바이오/헬스케어",region:"인천",listed:true,revenue:368000,employees:5800,founded:2011,desc:"글로벌 CMO 1위"},
-  {id:"005",name:"카카오",ind:"IT/SW",region:"제주",listed:true,revenue:773000,employees:12000,founded:2010,desc:"국내 최대 모바일 플랫폼"},
-  {id:"006",name:"네이버",ind:"IT/SW",region:"경기",listed:true,revenue:982000,employees:14000,founded:1999,desc:"국내 최대 포털·IT기업"},
-  {id:"007",name:"크래프톤",ind:"IT/SW",region:"서울",listed:true,revenue:194000,employees:4300,founded:2007,desc:"배틀그라운드 개발사"},
-  {id:"008",name:"더존비즈온",ind:"IT/SW",region:"서울",listed:true,revenue:38000,employees:2900,founded:1991,desc:"기업용 ERP·클라우드"},
-  {id:"009",name:"뉴로클",ind:"IT/SW",region:"서울",listed:false,revenue:1800,employees:95,founded:2017,desc:"AI 딥러닝 비전 SW"},
-  {id:"010",name:"스틸리언",ind:"IT/SW",region:"서울",listed:false,revenue:2800,employees:110,founded:2012,desc:"사이버보안 전문기업"},
-  {id:"011",name:"에어스메디컬",ind:"바이오/헬스케어",region:"서울",listed:false,revenue:2100,employees:130,founded:2016,desc:"글로벌 의료 AI"},
-  {id:"012",name:"클래시스",ind:"바이오/헬스케어",region:"서울",listed:true,revenue:13200,employees:310,founded:2007,desc:"피부미용 의료기기"},
-  {id:"013",name:"마크로젠",ind:"바이오/헬스케어",region:"서울",listed:true,revenue:8900,employees:520,founded:1997,desc:"유전체 분석 전문"},
-  {id:"014",name:"오스템임플란트",ind:"바이오/헬스케어",region:"서울",listed:true,revenue:78000,employees:4100,founded:1997,desc:"글로벌 치과임플란트 1위"},
-  {id:"015",name:"스피덴트",ind:"바이오/헬스케어",region:"경기",listed:false,revenue:4500,employees:210,founded:2012,desc:"치과 바이오소재"},
-  {id:"016",name:"에코프로비엠",ind:"에너지/화학",region:"충북",listed:true,revenue:420000,employees:3200,founded:2016,desc:"배터리 양극재 선도"},
-  {id:"017",name:"LG화학",ind:"에너지/화학",region:"서울",listed:true,revenue:558000,employees:24000,founded:1947,desc:"종합 화학·배터리 소재"},
-  {id:"018",name:"롯데케미칼",ind:"에너지/화학",region:"서울",listed:true,revenue:195000,employees:6500,founded:1976,desc:"석유화학 전문기업"},
-  {id:"019",name:"삼양식품",ind:"유통/소비재",region:"서울",listed:true,revenue:92000,employees:2100,founded:1961,desc:"불닭볶음면 글로벌 히트"},
-  {id:"020",name:"오리온",ind:"유통/소비재",region:"서울",listed:true,revenue:95000,employees:5800,founded:1956,desc:"글로벌 제과 전문기업"},
-  {id:"021",name:"CJ제일제당",ind:"유통/소비재",region:"서울",listed:true,revenue:290000,employees:16000,founded:1953,desc:"식품·바이오 종합기업"},
-  {id:"022",name:"현대백화점",ind:"유통/소비재",region:"서울",listed:true,revenue:105000,employees:8000,founded:1977,desc:"프리미엄 유통 전문"},
-  {id:"023",name:"KB금융",ind:"금융",region:"서울",listed:true,revenue:580000,employees:28000,founded:2008,desc:"국내 1위 금융그룹"},
-  {id:"024",name:"신한금융",ind:"금융",region:"서울",listed:true,revenue:520000,employees:25000,founded:2001,desc:"종합 금융그룹"},
-  {id:"025",name:"카카오뱅크",ind:"금융",region:"경기",listed:true,revenue:35000,employees:1800,founded:2016,desc:"국내 1위 인터넷은행"},
-  {id:"026",name:"토스뱅크",ind:"금융",region:"서울",listed:false,revenue:18000,employees:1200,founded:2021,desc:"핀테크 기반 인터넷은행"},
-  {id:"027",name:"현대건설",ind:"건설/부동산",region:"서울",listed:true,revenue:293000,employees:9500,founded:1947,desc:"국내 최대 건설사"},
-  {id:"028",name:"GS건설",ind:"건설/부동산",region:"서울",listed:true,revenue:120000,employees:6000,founded:1969,desc:"자이 브랜드 건설사"},
-  {id:"029",name:"카카오엔터테인먼트",ind:"미디어/콘텐츠",region:"서울",listed:false,revenue:18000,employees:3500,founded:2021,desc:"웹툰·음악·영화 콘텐츠"},
-  {id:"030",name:"하이브",ind:"미디어/콘텐츠",region:"서울",listed:true,revenue:22000,employees:2100,founded:2005,desc:"BTS 소속 글로벌 엔터"},
-  {id:"031",name:"POSCO홀딩스",ind:"제조업",region:"경북",listed:true,revenue:770000,employees:37000,founded:1968,desc:"세계적 철강기업"},
-  {id:"032",name:"현대차",ind:"제조업",region:"서울",listed:true,revenue:1627000,employees:72000,founded:1967,desc:"글로벌 자동차 TOP5"},
-  {id:"033",name:"기아",ind:"제조업",region:"서울",listed:true,revenue:993000,employees:36000,founded:1944,desc:"글로벌 자동차 제조사"},
-  {id:"034",name:"LG전자",ind:"제조업",region:"서울",listed:true,revenue:842000,employees:75000,founded:1958,desc:"글로벌 가전 선도기업"},
-  {id:"035",name:"에이치엔엔",ind:"IT/SW",region:"서울",listed:false,revenue:560,employees:42,founded:2019,desc:"AI 기반 HR 솔루션"},
-  {id:"036",name:"카카오헬스케어",ind:"바이오/헬스케어",region:"서울",listed:false,revenue:3200,employees:420,founded:2021,desc:"디지털 헬스케어 플랫폼"},
-  {id:"037",name:"비바리퍼블리카(토스)",ind:"금융",region:"서울",listed:false,revenue:95000,employees:5500,founded:2013,desc:"국내 1위 핀테크"},
-  {id:"038",name:"무신사",ind:"유통/소비재",region:"서울",listed:false,revenue:98000,employees:3200,founded:2001,desc:"국내 최대 패션 플랫폼"},
-  {id:"039",name:"야놀자",ind:"IT/SW",region:"서울",listed:false,revenue:75000,employees:4000,founded:2005,desc:"글로벌 여행·숙박 플랫폼"},
-  {id:"040",name:"쏘카",ind:"IT/SW",region:"서울",listed:true,revenue:38000,employees:1500,founded:2011,desc:"국내 1위 카셰어링"},
-  {id:"041",name:"투핸즈인터랙티브",ind:"IT/SW",region:"서울",listed:false,revenue:850,employees:42,founded:2015,desc:"XR 인터랙티브 솔루션"},
-  {id:"042",name:"리셋컴퍼니",ind:"에너지/화학",region:"경기",listed:false,revenue:3200,employees:85,founded:2018,desc:"태양광 청소로봇"},
-  {id:"043",name:"바이오플랜",ind:"바이오/헬스케어",region:"전북",listed:false,revenue:920,employees:38,founded:2014,desc:"식물생리활성제 전문"},
-  {id:"044",name:"일동바이오사이언스",ind:"바이오/헬스케어",region:"경기",listed:false,revenue:12000,employees:180,founded:2001,desc:"프로바이오틱스 전문"},
-  {id:"045",name:"지엔비코리아",ind:"제조업",region:"경기",listed:false,revenue:1560,employees:67,founded:2010,desc:"위생·정수 솔루션"},
-  {id:"046",name:"에스비티엘첨단소재",ind:"에너지/화학",region:"충남",listed:false,revenue:8500,employees:320,founded:2015,desc:"배터리 외장재 전문"},
-  {id:"047",name:"뉴로클",ind:"IT/SW",region:"서울",listed:false,revenue:1800,employees:95,founded:2017,desc:"AI 딥러닝 비전"},
-  {id:"048",name:"이노하스",ind:"바이오/헬스케어",region:"서울",listed:false,revenue:2100,employees:88,founded:2018,desc:"식물성 푸드테크"},
-  {id:"049",name:"에이지앤뷰티",ind:"유통/소비재",region:"서울",listed:false,revenue:3800,employees:145,founded:2016,desc:"프리미엄 속눈썹 전문"},
-  {id:"050",name:"유비스랩",ind:"IT/SW",region:"서울",listed:false,revenue:950,employees:55,founded:2018,desc:"GPS 스포츠 테크"},
+const D=[
+  {id:"001",name:"삼성전자",ind:"제조업",region:"경기",listed:true,revenue:300500000,emp:124800,founded:1969,desc:"글로벌 반도체·가전 1위"},
+  {id:"002",name:"SK하이닉스",ind:"제조업",region:"경기",listed:true,revenue:66000000,emp:30000,founded:1983,desc:"메모리 반도체 전문기업"},
+  {id:"003",name:"현대차",ind:"제조업",region:"서울",listed:true,revenue:162700000,emp:72000,founded:1967,desc:"글로벌 자동차 TOP5"},
+  {id:"004",name:"기아",ind:"제조업",region:"서울",listed:true,revenue:99300000,emp:36000,founded:1944,desc:"글로벌 자동차 제조사"},
+  {id:"005",name:"LG전자",ind:"제조업",region:"서울",listed:true,revenue:84200000,emp:75000,founded:1958,desc:"글로벌 가전 선도기업"},
+  {id:"006",name:"POSCO홀딩스",ind:"제조업",region:"경북",listed:true,revenue:77000000,emp:37000,founded:1968,desc:"세계적 철강기업"},
+  {id:"007",name:"삼양식품",ind:"유통/소비재",region:"서울",listed:true,revenue:9200000,emp:2100,founded:1961,desc:"불닭볶음면 글로벌 히트"},
+  {id:"008",name:"네이버",ind:"IT/SW",region:"경기",listed:true,revenue:98200000,emp:14000,founded:1999,desc:"국내 최대 포털·IT기업"},
+  {id:"009",name:"카카오",ind:"IT/SW",region:"제주",listed:true,revenue:77300000,emp:12000,founded:2010,desc:"국내 최대 모바일 플랫폼"},
+  {id:"010",name:"크래프톤",ind:"IT/SW",region:"서울",listed:true,revenue:19400000,emp:4300,founded:2007,desc:"배틀그라운드 개발사"},
+  {id:"011",name:"더존비즈온",ind:"IT/SW",region:"서울",listed:true,revenue:3800000,emp:2900,founded:1991,desc:"기업용 ERP·클라우드"},
+  {id:"012",name:"야놀자",ind:"IT/SW",region:"서울",listed:false,revenue:7500000,emp:4000,founded:2005,desc:"글로벌 여행·숙박 플랫폼"},
+  {id:"013",name:"무신사",ind:"유통/소비재",region:"서울",listed:false,revenue:9800000,emp:3200,founded:2001,desc:"국내 최대 패션 플랫폼"},
+  {id:"014",name:"쏘카",ind:"IT/SW",region:"서울",listed:true,revenue:3800000,emp:1500,founded:2011,desc:"국내 1위 카셰어링"},
+  {id:"015",name:"뉴로클",ind:"IT/SW",region:"서울",listed:false,revenue:1800,emp:95,founded:2017,desc:"AI 딥러닝 비전 SW"},
+  {id:"016",name:"스틸리언",ind:"IT/SW",region:"서울",listed:false,revenue:2800,emp:110,founded:2012,desc:"사이버보안 전문기업"},
+  {id:"017",name:"셀트리온",ind:"바이오/헬스케어",region:"인천",listed:true,revenue:23500000,emp:4200,founded:2002,desc:"바이오시밀러 글로벌 선도"},
+  {id:"018",name:"삼성바이오로직스",ind:"바이오/헬스케어",region:"인천",listed:true,revenue:36800000,emp:5800,founded:2011,desc:"글로벌 CMO 1위"},
+  {id:"019",name:"클래시스",ind:"바이오/헬스케어",region:"서울",listed:true,revenue:1320000,emp:310,founded:2007,desc:"피부미용 의료기기"},
+  {id:"020",name:"오스템임플란트",ind:"바이오/헬스케어",region:"서울",listed:true,revenue:7800000,emp:4100,founded:1997,desc:"글로벌 치과임플란트 1위"},
+  {id:"021",name:"마크로젠",ind:"바이오/헬스케어",region:"서울",listed:true,revenue:890000,emp:520,founded:1997,desc:"유전체 분석 전문"},
+  {id:"022",name:"에어스메디컬",ind:"바이오/헬스케어",region:"서울",listed:false,revenue:2100,emp:130,founded:2016,desc:"글로벌 의료 AI"},
+  {id:"023",name:"카카오헬스케어",ind:"바이오/헬스케어",region:"서울",listed:false,revenue:320000,emp:420,founded:2021,desc:"디지털 헬스케어 플랫폼"},
+  {id:"024",name:"에코프로비엠",ind:"에너지/화학",region:"충북",listed:true,revenue:42000000,emp:3200,founded:2016,desc:"배터리 양극재 선도"},
+  {id:"025",name:"LG화학",ind:"에너지/화학",region:"서울",listed:true,revenue:55800000,emp:24000,founded:1947,desc:"종합 화학·배터리 소재"},
+  {id:"026",name:"롯데케미칼",ind:"에너지/화학",region:"서울",listed:true,revenue:19500000,emp:6500,founded:1976,desc:"석유화학 전문기업"},
+  {id:"027",name:"KB금융",ind:"금융",region:"서울",listed:true,revenue:58000000,emp:28000,founded:2008,desc:"국내 1위 금융그룹"},
+  {id:"028",name:"신한금융",ind:"금융",region:"서울",listed:true,revenue:52000000,emp:25000,founded:2001,desc:"종합 금융그룹"},
+  {id:"029",name:"하나금융",ind:"금융",region:"서울",listed:true,revenue:48000000,emp:22000,founded:2005,desc:"종합 금융그룹"},
+  {id:"030",name:"카카오뱅크",ind:"금융",region:"경기",listed:true,revenue:3500000,emp:1800,founded:2016,desc:"국내 1위 인터넷은행"},
+  {id:"031",name:"비바리퍼블리카(토스)",ind:"금융",region:"서울",listed:false,revenue:9500000,emp:5500,founded:2013,desc:"국내 1위 핀테크"},
+  {id:"032",name:"현대건설",ind:"건설/부동산",region:"서울",listed:true,revenue:29300000,emp:9500,founded:1947,desc:"국내 최대 건설사"},
+  {id:"033",name:"GS건설",ind:"건설/부동산",region:"서울",listed:true,revenue:12000000,emp:6000,founded:1969,desc:"자이 브랜드 건설사"},
+  {id:"034",name:"하이브",ind:"미디어/콘텐츠",region:"서울",listed:true,revenue:2200000,emp:2100,founded:2005,desc:"BTS 소속 글로벌 엔터"},
+  {id:"035",name:"카카오엔터테인먼트",ind:"미디어/콘텐츠",region:"서울",listed:false,revenue:1800000,emp:3500,founded:2021,desc:"웹툰·음악·영화 콘텐츠"},
+  {id:"036",name:"오리온",ind:"유통/소비재",region:"서울",listed:true,revenue:9500000,emp:5800,founded:1956,desc:"글로벌 제과 전문기업"},
+  {id:"037",name:"CJ제일제당",ind:"유통/소비재",region:"서울",listed:true,revenue:29000000,emp:16000,founded:1953,desc:"식품·바이오 종합기업"},
+  {id:"038",name:"현대백화점",ind:"유통/소비재",region:"서울",listed:true,revenue:10500000,emp:8000,founded:1977,desc:"프리미엄 유통 전문"},
+  {id:"039",name:"스피덴트",ind:"바이오/헬스케어",region:"경기",listed:false,revenue:450000,emp:210,founded:2012,desc:"치과 바이오소재"},
+  {id:"040",name:"일동바이오사이언스",ind:"바이오/헬스케어",region:"경기",listed:false,revenue:1200000,emp:180,founded:2001,desc:"프로바이오틱스 전문"},
+  {id:"041",name:"에코프로",ind:"에너지/화학",region:"충북",listed:true,revenue:18000000,emp:1800,founded:1998,desc:"배터리 소재 지주사"},
+  {id:"042",name:"포스코퓨처엠",ind:"에너지/화학",region:"경북",listed:true,revenue:38000000,emp:5200,founded:1971,desc:"배터리 소재·화학"},
+  {id:"043",name:"바이오플랜",ind:"바이오/헬스케어",region:"전북",listed:false,revenue:920,emp:38,founded:2014,desc:"식물생리활성제 전문"},
+  {id:"044",name:"뉴로클2",ind:"IT/SW",region:"서울",listed:false,revenue:1800,emp:95,founded:2017,desc:"AI 비전 솔루션"},
+  {id:"045",name:"리셋컴퍼니",ind:"에너지/화학",region:"경기",listed:false,revenue:3200,emp:85,founded:2018,desc:"태양광 청소로봇"},
+  {id:"046",name:"투핸즈인터랙티브",ind:"IT/SW",region:"서울",listed:false,revenue:850,emp:42,founded:2015,desc:"XR 인터랙티브 솔루션"},
+  {id:"047",name:"에이지앤뷰티",ind:"유통/소비재",region:"서울",listed:false,revenue:380000,emp:145,founded:2016,desc:"프리미엄 속눈썹 전문"},
+  {id:"048",name:"에스비티엘첨단소재",ind:"에너지/화학",region:"충남",listed:false,revenue:850000,emp:320,founded:2015,desc:"배터리 외장재 전문"},
+  {id:"049",name:"유비스랩",ind:"IT/SW",region:"서울",listed:false,revenue:95000,emp:55,founded:2018,desc:"GPS 스포츠 테크"},
+  {id:"050",name:"이노하스",ind:"바이오/헬스케어",region:"서울",listed:false,revenue:210000,emp:88,founded:2018,desc:"식물성 푸드테크"},
 ];
 
-// ─── 상태 ────────────────────────────────────────────────
-const PAGE_SIZE = 10;
-let filtered = [...DATA];
-let currentPage = 1;
-let checkedIds = new Set();
-let allSelected = false;
-let savedList = JSON.parse(localStorage.getItem("co_saved2") || "[]");
-const newsCache = {};
-const detailOpen = new Set();
+const PS=10;
+let filtered=[...D], page=1, chk=new Set(), allSel=false;
+let saved=JSON.parse(localStorage.getItem("cr3")||"[]");
+const nc={}, dop=new Set();
 
-// ─── 필터 & 정렬 ──────────────────────────────────────────
-function applyFilter() {
-  const kw = document.getElementById("kw").value.toLowerCase();
-  const ind = document.getElementById("f-ind").value;
-  const emp = document.getElementById("f-emp").value;
-  const listed = document.getElementById("f-listed").value;
-  const sort = document.getElementById("f-sort").value;
+function fmt(v){
+  if(!v)return"-";
+  const a=v/100;
+  if(a>=10000)return`${(a/10000).toFixed(1)}조`;
+  if(a>=1000)return`${(a/1000).toFixed(0)}천억`;
+  if(a>=1)return`${Math.round(a)}억`;
+  return`${v}백만`;
+}
 
-  filtered = DATA.filter(c => {
-    const [eMin, eMax] = emp ? emp.split("-").map(Number) : [0, Infinity];
-    return (
-      (!kw || c.name.toLowerCase().includes(kw) || c.ind.includes(kw) || c.desc.includes(kw)) &&
-      (!ind || c.ind === ind) &&
-      (!emp || (c.employees >= eMin && (isNaN(eMax) || c.employees < eMax))) &&
-      (!listed || (listed==="Y" ? c.listed : !c.listed))
-    );
-  }).sort((a,b) => {
-    if (sort==="revenue_desc") return b.revenue - a.revenue;
-    if (sort==="revenue_asc") return a.revenue - b.revenue;
-    if (sort==="employees_desc") return b.employees - a.employees;
-    if (sort==="employees_asc") return a.employees - b.employees;
+function go(){
+  const kw=document.getElementById("kw").value.toLowerCase();
+  const ind=document.getElementById("fi").value;
+  const emp=document.getElementById("fe").value;
+  const lst=document.getElementById("fl").value;
+  const srt=document.getElementById("fs").value;
+
+  filtered=D.filter(c=>{
+    if(kw&&!c.name.toLowerCase().includes(kw)&&!c.desc.includes(kw))return false;
+    if(ind&&c.ind!==ind)return false;
+    if(emp){const[a,b]=emp.split(",").map(Number);if(c.emp<a||c.emp>b)return false;}
+    if(lst==="Y"&&!c.listed)return false;
+    if(lst==="N"&&c.listed)return false;
+    return true;
+  }).sort((a,b)=>{
+    if(srt==="revenue_desc")return b.revenue-a.revenue;
+    if(srt==="revenue_asc")return a.revenue-b.revenue;
+    if(srt==="employees_desc")return b.emp-a.emp;
+    if(srt==="employees_asc")return a.emp-b.emp;
     return a.name.localeCompare(b.name,"ko");
   });
 
-  currentPage = 1;
-  checkedIds.clear();
-  allSelected = false;
-  render();
+  page=1; chk.clear(); allSel=false; draw();
 }
 
-// ─── 렌더링 ───────────────────────────────────────────────
-function render() {
-  const totalPages = Math.ceil(total / PAGE_SIZE);
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const page = filtered.slice(start, start + PAGE_SIZE);
+function draw(){
+  const tot=filtered.length;
+  const tp=Math.ceil(tot/PS)||1;
+  const st=(page-1)*PS;
+  const pg=filtered.slice(st,st+PS);
 
-  document.getElementById("result-count").innerHTML =
-    `총 <b style="color:#1e40af">${total}</b>개 기업`;
-  document.getElementById("bulk-bar").style.display = total ? "flex" : "none";
-  updateBulkBar();
+  document.getElementById("rc").innerHTML=`총 <b style="color:#1e40af">${tot}</b>개 기업`;
+  document.getElementById("bb").style.display=tot?"flex":"none";
+  updBB();
 
-  if (page.length === 0) {
-    document.getElementById("co-list").innerHTML = `<div class="empty"><div style="font-size:36px">🔍</div><p style="margin-top:8px">조건에 맞는 기업이 없어요</p></div>`;
-    document.getElementById("pagination").innerHTML = "";
+  if(!pg.length){
+    document.getElementById("cl").innerHTML=`<div class="empty"><div style="font-size:36px">🔍</div><p style="margin-top:8px">조건에 맞는 기업이 없어요</p></div>`;
+    document.getElementById("pg").innerHTML="";
     return;
   }
 
-  document.getElementById("result-count").innerHTML = `총 <b style="color:#1e40af">${total}</b>개 기업`;
-  document.getElementById("bulk-bar").style.display = total ? "flex" : "none";
-  updateBulkBar();
-
-  if (!page.length) {
-    document.getElementById("co-list").innerHTML = `<div class="empty"><div style="font-size:36px">🔍</div><p style="margin-top:8px">조건에 맞는 기업이 없어요</p></div>`;
-    document.getElementById("pagination").innerHTML = "";
-    return;
-  }
-
-  document.getElementById("co-list").innerHTML = page.map((c) => {
-    const isChecked = allSelected || checkedIds.has(c.id);
-    const isSaved = savedList.some(s => s.id === c.id);
-    const isOpen = detailOpen.has(c.id);
-    return `
-    <div class="co-card ${isChecked?"checked":""} ${isSaved?"saved-co":""}" id="card-${c.id}">
+  document.getElementById("cl").innerHTML=pg.map(c=>{
+    const ck=allSel||chk.has(c.id);
+    const sv=saved.some(s=>s.id===c.id);
+    const op=dop.has(c.id);
+    return`<div class="co${ck?" ck":""}${sv?" sv":""}" id="C${c.id}">
       <div style="display:flex;align-items:flex-start;gap:10px">
-        <div style="padding-top:2px;flex-shrink:0">
-          <input type="checkbox" ${isChecked?"checked":""} onchange="toggleCheck('${c.id}',this.checked)"/>
-        </div>
+        <div style="padding-top:2px"><input type="checkbox"${ck?" checked":""} onchange="tck('${c.id}',this.checked)"/></div>
         <div style="flex:1">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <span style="font-weight:800;font-size:15px;color:#0f172a">${c.name}</span>
             ${c.listed?`<span class="tag" style="background:#eff6ff;color:#1d4ed8">📈 상장</span>`:`<span class="tag" style="background:#f1f5f9;color:#64748b">비상장</span>`}
             <span class="tag" style="background:#f1f5f9;color:#64748b">${c.region}</span>
             <span class="tag" style="background:#e0e7ff;color:#3730a3">${c.ind}</span>
-            ${isSaved?`<span class="tag" style="background:#dcfce7;color:#15803d">✓ 저장됨</span>`:""}
+            ${sv?`<span class="tag" style="background:#dcfce7;color:#15803d">✓ 저장됨</span>`:""}
           </div>
           <div style="font-size:12px;color:#64748b;margin-top:3px">${c.desc} · 설립 ${c.founded}년</div>
-          <div class="metrics">
-            <div class="metric"><div class="lbl">매출</div><div class="val" style="color:#f59e0b">${fmt(c.revenue)}</div></div>
-            <div class="metric"><div class="lbl">임직원</div><div class="val" style="color:#0ea5e9">${c.employees.toLocaleString()}명</div></div>
+          <div class="mt">
+            <div><div class="l">매출</div><div class="v" style="color:#f59e0b">${fmt(c.revenue)}</div></div>
+            <div><div class="l">임직원</div><div class="v" style="color:#0ea5e9">${c.emp.toLocaleString()}명</div></div>
           </div>
         </div>
-        <button class="btn btn-gray btn-sm" onclick="toggleDetail('${c.id}')" id="btn-d-${c.id}">${isOpen?"▲ 닫기":"▼ 상세"}</button>
+        <button class="btn bg bs" onclick="tod('${c.id}')" id="BD${c.id}">${op?"▲ 닫기":"▼ 상세"}</button>
       </div>
-      <div id="detail-${c.id}" style="display:${isOpen?"block":"none"}">
-        <div class="detail-box">
-          <div class="detail-info">
-            <div style="display:flex;gap:16px;flex-wrap:wrap;color:#1e293b">
-              <span><span style="color:#94a3b8">업종: </span>${c.ind}</span>
-              <span><span style="color:#94a3b8">지역: </span>${c.region}</span>
-              <span><span style="color:#94a3b8">설립: </span>${c.founded}년</span>
-              <span><span style="color:#94a3b8">임직원: </span><b style="color:#0ea5e9">${c.employees.toLocaleString()}명</b></span>
-              <span><span style="color:#94a3b8">매출: </span><b style="color:#f59e0b">${fmt(c.revenue)}</b></span>
-              <span><span style="color:#94a3b8">상장: </span>${c.listed?"상장":"비상장"}</span>
-            </div>
+      <div id="DD${c.id}" style="display:${op?"block":"none"}">
+        <div class="di">
+          <div style="display:flex;gap:14px;flex-wrap:wrap">
+            <span><span style="color:#94a3b8">업종: </span>${c.ind}</span>
+            <span><span style="color:#94a3b8">지역: </span>${c.region}</span>
+            <span><span style="color:#94a3b8">설립: </span>${c.founded}년</span>
+            <span><span style="color:#94a3b8">임직원: </span><b style="color:#0ea5e9">${c.emp.toLocaleString()}명</b></span>
+            <span><span style="color:#94a3b8">매출: </span><b style="color:#f59e0b">${fmt(c.revenue)}</b></span>
           </div>
-          <div class="news-box" id="news-${c.id}">
-            <div class="news-title">📰 최근 뉴스</div>
-            <div id="news-list-${c.id}" style="color:#94a3b8;font-size:12px">불러오는 중...</div>
-          </div>
+        </div>
+        <div class="nb" id="NB${c.id}">
+          <div class="nt">📰 최근 뉴스</div>
+          <div id="NL${c.id}" style="color:#94a3b8;font-size:12px">불러오는 중...</div>
         </div>
       </div>
     </div>`;
-  }).join("") || `<div class="empty"><div style="font-size:36px">🔍</div><p style="margin-top:8px">조건에 맞는 기업이 없어요</p></div>`;
+  }).join("");
 
-  // 뉴스 로드 (열린 것만)
-  page.filter(c => detailOpen.has(c.id)).forEach(c => loadNews(c));
-
-  // 페이지네이션
-  renderPagination(totalPages);
+  pg.filter(c=>dop.has(c.id)).forEach(c=>lnews(c));
+  drawPg(tp);
 }
 
-function renderPagination(total) {
-  const pEl = document.getElementById("pagination");
-  if (total <= 1) { pEl.innerHTML=""; return; }
-  const p = currentPage;
-  let html = `<button class="pg-btn" onclick="goPage(${p-1})" ${p<=1?"disabled":""}>‹</button>`;
-  const s = Math.max(1,p-2), e = Math.min(total,p+2);
-  if (s>1) html+=`<button class="pg-btn" onclick="goPage(1)">1</button>${s>2?`<span style="color:#94a3b8">…</span>`:""}`;
-  for(let i=s;i<=e;i++) html+=`<button class="pg-btn ${i===p?"active":""}" onclick="goPage(${i})">${i}</button>`;
-  if(e<total) html+=`${e<total-1?`<span style="color:#94a3b8">…</span>`:""}<button class="pg-btn" onclick="goPage(${total})">${total}</button>`;
-  html+=`<button class="pg-btn" onclick="goPage(${p+1})" ${p>=total?"disabled":""}>›</button>`;
-  pEl.innerHTML = html;
+function drawPg(tp){
+  if(tp<=1){document.getElementById("pg").innerHTML="";return;}
+  const p=page;
+  let h=`<button class="pb" onclick="gp(${p-1})"${p<=1?" disabled":""}>‹</button>`;
+  const s=Math.max(1,p-2),e=Math.min(tp,p+2);
+  if(s>1)h+=`<button class="pb" onclick="gp(1)">1</button>${s>2?`<span>…</span>`:""}`;
+  for(let i=s;i<=e;i++)h+=`<button class="pb${i===p?" ac":""}" onclick="gp(${i})">${i}</button>`;
+  if(e<tp)h+=`${e<tp-1?`<span>…</span>`:""}<button class="pb" onclick="gp(${tp})">${tp}</button>`;
+  h+=`<button class="pb" onclick="gp(${p+1})"${p>=tp?" disabled":""}>›</button>`;
+  document.getElementById("pg").innerHTML=h;
 }
 
-function goPage(p) { currentPage=p; checkedIds.clear(); render(); window.scrollTo({top:0,behavior:"smooth"}); }
+function gp(p){page=p;chk.clear();draw();window.scrollTo({top:0,behavior:"smooth"});}
 
-// ─── 상세 & 뉴스 ─────────────────────────────────────────
-function toggleDetail(id) {
-  const el = document.getElementById(`detail-${id}`);
-  const btn = document.getElementById(`btn-d-${id}`);
-  const isOpen = el.style.display !== "none";
-  el.style.display = isOpen ? "none" : "block";
-  btn.textContent = isOpen ? "▼ 상세" : "▲ 닫기";
-  if (isOpen) detailOpen.delete(id);
-  else {
-    detailOpen.add(id);
-    const c = DATA.find(x => x.id === id);
-    if (c) loadNews(c);
-  }
+function tod(id){
+  const el=document.getElementById("DD"+id);
+  const bt=document.getElementById("BD"+id);
+  const op=el.style.display!=="none";
+  el.style.display=op?"none":"block";
+  bt.textContent=op?"▼ 상세":"▲ 닫기";
+  if(!op){dop.add(id);const c=D.find(x=>x.id===id);if(c)lnews(c);}
+  else dop.delete(id);
 }
 
-async function loadNews(c) {
-  const listEl = document.getElementById(`news-list-${c.id}`);
-  if (!listEl) return;
-  if (newsCache[c.id]) { renderNews(c.id, newsCache[c.id]); return; }
-  try {
-    const rss = `https://news.google.com/rss/search?q=${encodeURIComponent(c.name)}&hl=ko&gl=KR&ceid=KR:ko`;
-    // 여러 프록시 순차 시도
-    const proxies = [
+async function lnews(c){
+  const el=document.getElementById("NL"+c.id);
+  if(!el)return;
+  if(nc[c.id]){rNews(c.id,nc[c.id]);return;}
+  try{
+    const rss=`https://news.google.com/rss/search?q=${encodeURIComponent(c.name)}&hl=ko&gl=KR&ceid=KR:ko`;
+    const proxies=[
       `https://api.allorigins.win/get?url=${encodeURIComponent(rss)}`,
       `https://corsproxy.io/?${encodeURIComponent(rss)}`,
     ];
-    let xml = null;
-    for (const proxy of proxies) {
-      try {
-        const res = await fetch(proxy, { signal: AbortSignal.timeout(5000) });
-        if (!res.ok) continue;
-        const isAllOrigins = proxy.includes("allorigins");
-        if (isAllOrigins) {
-          const data = await res.json();
-          xml = data.contents;
-        } else {
-          xml = await res.text();
-        }
-        if (xml && xml.includes("<item>")) break;
-      } catch { continue; }
+    let xml=null;
+    for(const px of proxies){
+      try{
+        const r=await fetch(px,{signal:AbortSignal.timeout(5000)});
+        if(!r.ok)continue;
+        xml=px.includes("allorigins")?(await r.json()).contents:await r.text();
+        if(xml&&xml.includes("<item>"))break;
+      }catch{continue;}
     }
-    if (!xml) throw new Error("프록시 모두 실패");
-    const doc = new DOMParser().parseFromString(xml, "text/xml");
-    const items = [...doc.querySelectorAll("item")].slice(0,3).map(item => ({
-      title: item.querySelector("title")?.textContent || "",
-      source: item.querySelector("source")?.textContent || "",
-      date: item.querySelector("pubDate")?.textContent || "",
+    if(!xml)throw new Error("fail");
+    const doc=new DOMParser().parseFromString(xml,"text/xml");
+    const items=[...doc.querySelectorAll("item")].slice(0,3).map(i=>({
+      title:i.querySelector("title")?.textContent||"",
+      source:i.querySelector("source")?.textContent||"",
+      date:i.querySelector("pubDate")?.textContent||"",
     }));
-    newsCache[c.id] = items;
-    renderNews(c.id, items);
-  } catch {
-    if (listEl) listEl.textContent = "뉴스를 불러올 수 없어요";
-  }
+    nc[c.id]=items;
+    rNews(c.id,items);
+  }catch{if(el)el.textContent="뉴스를 불러올 수 없어요";}
 }
 
-function renderNews(id, items) {
-  const listEl = document.getElementById(`news-list-${id}`);
-  if (!listEl) return;
-  if (!items.length) { listEl.textContent = "최근 뉴스가 없어요"; return; }
-  listEl.innerHTML = items.map((n,i) => `
-    <div class="news-item" ${i===0?"":"style=''"}>
-      <span style="color:#fb923c;flex-shrink:0;margin-top:1px">▸</span>
+function rNews(id,items){
+  const el=document.getElementById("NL"+id);
+  if(!el)return;
+  if(!items.length){el.textContent="최근 뉴스가 없어요";return;}
+  el.innerHTML=items.map((n,i)=>`
+    <div class="ni">
+      <span style="color:#fb923c;flex-shrink:0">▸</span>
       <div>
-        <div style="color:#1e293b;font-weight:500;line-height:1.5;font-size:12px">${n.title}</div>
+        <div style="color:#1e293b;font-weight:500;line-height:1.5">${n.title}</div>
         <div style="color:#94a3b8;font-size:11px;margin-top:2px">${n.source}${n.source&&n.date?" · ":""}${n.date?new Date(n.date).toLocaleDateString("ko-KR"):""}</div>
       </div>
     </div>`).join("");
 }
 
-// ─── 체크박스 ─────────────────────────────────────────────
-function toggleCheck(id, checked) {
-  allSelected = false;
-  checked ? checkedIds.add(id) : checkedIds.delete(id);
-  const card = document.getElementById(`card-${id}`);
-  if (card) {
-    const isSaved = savedList.some(s=>s.id===id);
-    card.className = `co-card ${checked?"checked":""} ${isSaved?"saved-co":""}`;
-  }
-  updateBulkBar();
+function tck(id,v){
+  allSel=false;
+  v?chk.add(id):chk.delete(id);
+  const el=document.getElementById("C"+id);
+  if(el){const sv=saved.some(s=>s.id===id);el.className=`co${v?" ck":""}${sv?" sv":""}`;}
+  updBB();
 }
-
-function togglePageSelect(checked) {
-  allSelected = false;
-  const start = (currentPage-1)*PAGE_SIZE;
-  filtered.slice(start, start+PAGE_SIZE).forEach(c => checked ? checkedIds.add(c.id) : checkedIds.delete(c.id));
-  render();
+function selPage(v){
+  allSel=false;
+  const st=(page-1)*PS;
+  filtered.slice(st,st+PS).forEach(c=>v?chk.add(c.id):chk.delete(c.id));
+  draw();
 }
-
-function selectAllPages() {
-  allSelected = true;
-  filtered.forEach(c => checkedIds.add(c.id));
-  render();
+function selAll(){allSel=true;filtered.forEach(c=>chk.add(c.id));draw();}
+function updBB(){
+  const cnt=allSel?filtered.length:chk.size;
+  document.getElementById("cc").textContent=cnt>0?`${cnt}개 선택됨`:"";
+  const st=(page-1)*PS;
+  const pg=filtered.slice(st,st+PS);
+  document.getElementById("ca").checked=pg.length>0&&pg.every(c=>chk.has(c.id));
 }
-
-function updateBulkBar() {
-  const count = allSelected ? filtered.length : checkedIds.size;
-  document.getElementById("chk-count").textContent = count>0 ? `${count}개 선택됨` : "";
-  const start = (currentPage-1)*PAGE_SIZE;
-  const page = filtered.slice(start, start+PAGE_SIZE);
-  document.getElementById("chk-all").checked = page.length>0 && page.every(c=>checkedIds.has(c.id));
+function saveSel(){
+  const ts=allSel?filtered:filtered.filter(c=>chk.has(c.id));
+  let n=0;
+  ts.forEach(c=>{if(!saved.some(s=>s.id===c.id)){saved.push(c);n++;}});
+  sv();draw();alert(`✅ ${n}개 저장 (전체 ${saved.length}개)`);
 }
-
-function saveChecked() {
-  const toSave = allSelected ? filtered : filtered.filter(c=>checkedIds.has(c.id));
-  let added = 0;
-  toSave.forEach(c => { if(!savedList.some(s=>s.id===c.id)){ savedList.push(c); added++; } });
-  saveStore();
-  render();
-  alert(`✅ ${added}개 저장 완료 (전체 ${savedList.length}개)`);
-}
-
-// ─── 저장 관리 ────────────────────────────────────────────
-const saveStore = () => { localStorage.setItem("co_saved2", JSON.stringify(savedList)); document.getElementById("tab-saved").textContent=`📋 저장 리스트 (${savedList.length})`; };
-
-function renderSaved() {
-  document.getElementById("saved-stats").innerHTML = [
-    ["전체",savedList.length,"#1e40af"],
-    ["상장",savedList.filter(c=>c.listed).length,"#1d4ed8"],
-    ["비상장",savedList.filter(c=>!c.listed).length,"#64748b"],
-  ].map(([l,n,c])=>`<div class="stat" style="border-left:4px solid ${c}"><div class="num" style="color:${c}">${n}</div><div class="lbl">${l}</div></div>`).join("");
-
-  if (!savedList.length) {
-    document.getElementById("saved-list").innerHTML=`<div class="empty"><div style="font-size:36px">📋</div><p style="margin-top:8px">검색 탭에서 기업을 저장해보세요!</p></div>`;
-    return;
-  }
-  document.getElementById("saved-list").innerHTML = savedList.map(c=>`
-    <div class="co-card saved-co">
+function sv(){localStorage.setItem("cr3",JSON.stringify(saved));document.getElementById("t2").textContent=`📋 저장 리스트 (${saved.length})`;}
+function drwSaved(){
+  document.getElementById("ss").innerHTML=[
+    ["전체",saved.length,"#1e40af"],
+    ["상장",saved.filter(c=>c.listed).length,"#1d4ed8"],
+    ["비상장",saved.filter(c=>!c.listed).length,"#64748b"],
+  ].map(([l,n,c])=>`<div class="sc" style="border-left:4px solid ${c}"><div class="n" style="color:${c}">${n}</div><div class="l">${l}</div></div>`).join("");
+  if(!saved.length){document.getElementById("sl").innerHTML=`<div class="empty"><div style="font-size:36px">📋</div><p style="margin-top:8px">검색 탭에서 저장해보세요!</p></div>`;return;}
+  document.getElementById("sl").innerHTML=saved.map(c=>`
+    <div class="co sv">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
         <div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -472,51 +405,40 @@ function renderSaved() {
             ${c.listed?`<span class="tag" style="background:#eff6ff;color:#1d4ed8">📈 상장</span>`:""}
             <span class="tag" style="background:#e0e7ff;color:#3730a3">${c.ind}</span>
           </div>
-          <div class="metrics">
-            <div class="metric"><div class="lbl">매출</div><div class="val" style="color:#f59e0b">${fmt(c.revenue)}</div></div>
-            <div class="metric"><div class="lbl">임직원</div><div class="val" style="color:#0ea5e9">${c.employees.toLocaleString()}명</div></div>
+          <div class="mt">
+            <div><div class="l">매출</div><div class="v" style="color:#f59e0b">${fmt(c.revenue)}</div></div>
+            <div><div class="l">임직원</div><div class="v" style="color:#0ea5e9">${c.emp.toLocaleString()}명</div></div>
           </div>
         </div>
-        <button class="btn btn-red btn-sm" onclick="removeSaved('${c.id}')">삭제</button>
+        <button class="btn bre bs" onclick="rmSv('${c.id}')">삭제</button>
       </div>
     </div>`).join("");
 }
-
-function removeSaved(id) { savedList=savedList.filter(c=>c.id!==id); saveStore(); renderSaved(); }
-function clearAll() { if(confirm("전체 삭제할까요?")){ savedList=[]; saveStore(); renderSaved(); } }
-
-function exportCSV() {
+function rmSv(id){saved=saved.filter(c=>c.id!==id);sv();drwSaved();}
+function clrAll(){if(confirm("전체 삭제할까요?")){saved=[];sv();drwSaved();}}
+function expCSV(){
   const rows=[["기업명","업종","지역","상장","매출(백만)","임직원","설립연도"]];
-  savedList.forEach(c=>rows.push([c.name,c.ind,c.region,c.listed?"상장":"비상장",c.revenue,c.employees,c.founded]));
+  saved.forEach(c=>rows.push([c.name,c.ind,c.region,c.listed?"상장":"비상장",c.revenue,c.emp,c.founded]));
   const csv=rows.map(r=>r.map(v=>`"${v}"`).join(",")).join("\n");
-  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="기업리스트.csv";a.click();
+  const b=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="기업리스트.csv";a.click();
+}
+function switchTab(t){
+  document.getElementById("ps").style.display=t==="search"?"block":"none";
+  document.getElementById("pv").style.display=t==="saved"?"block":"none";
+  document.getElementById("t1").className="tab"+(t==="search"?" active":"");
+  document.getElementById("t2").className="tab"+(t==="saved"?" active":"");
+  if(t==="saved")drwSaved();
 }
 
-// ─── 탭 ──────────────────────────────────────────────────
-function switchTab(t) {
-  document.getElementById("panel-search").style.display = t==="search"?"block":"none";
-  document.getElementById("panel-saved").style.display = t==="saved"?"block":"none";
-  document.querySelectorAll(".tab").forEach((el,i)=>el.classList.toggle("active",(i===0)===(t==="search")));
-  if(t==="saved") renderSaved();
-}
+// 이벤트 바인딩
+document.getElementById("kw").addEventListener("input",go);
+document.getElementById("fi").addEventListener("change",go);
+document.getElementById("fe").addEventListener("change",go);
+document.getElementById("fl").addEventListener("change",go);
+document.getElementById("fs").addEventListener("change",go);
 
-// ─── 유틸 ────────────────────────────────────────────────
-// 매출 단위: 백만원
-const fmt = v => {
-  if(!v) return "-";
-  const억 = v / 100;        // 백만원 → 억원
-  if(억 >= 10000) return `${(억/10000).toFixed(1)}조`;
-  if(억 >= 1000) return `${(억/1000).toFixed(0)}천억`;
-  if(억 >= 100) return `${Math.round(억/100)*100}억`.replace("00억","00억");
-  if(억 >= 1) return `${억.toFixed(0)}억`;
-  return `${v}백만`;
-};
-
-// 초기 렌더링
-console.log("DATA 길이:", DATA.length);
-applyFilter();
-console.log("filtered 길이:", filtered.length);
+go();
 </script>
 </body>
 </html>
