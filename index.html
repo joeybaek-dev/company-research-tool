@@ -263,6 +263,23 @@ function renderList() {
             ${c.employees?`<div class="metric"><div class="lbl">임직원</div><div class="val" style="color:#0ea5e9">${c.employees.toLocaleString()}명</div></div>`:""}
           </div>
         </div>
+        <button class="btn btn-gray btn-sm" onclick="toggleDetail('${c.corp_code}')" id="btn-detail-${c.corp_code}">▼ 상세</button>
+      </div>
+      <!-- 상세 영역 -->
+      <div id="detail-${c.corp_code}" style="display:none;margin-top:12px">
+        <div style="padding:12px 14px;background:#f8fafc;border-radius:10px;font-size:12px;margin-bottom:10px">
+          <div style="display:flex;gap:16px;flex-wrap:wrap">
+            <div><span style="color:#94a3b8">DART코드: </span>${c.corp_code}</div>
+            <div><span style="color:#94a3b8">업종: </span>${c.industry_nm||"-"}</div>
+            <div><span style="color:#94a3b8">지역: </span>${c.region||"-"}</div>
+            <div><span style="color:#94a3b8">설립: </span>${c.founded||"-"}년</div>
+            ${c.employees?`<div><span style="color:#94a3b8">임직원: </span><b style="color:#0ea5e9">${c.employees.toLocaleString()}명</b></div>`:""}
+          </div>
+        </div>
+        <div id="news-${c.corp_code}" style="padding:12px 14px;background:#fff7ed;border-radius:10px;border:1px solid #fed7aa;font-size:12px">
+          <div style="font-weight:700;color:#c2410c;margin-bottom:8px">📰 최근 뉴스 <span id="news-count-${c.corp_code}" style="font-weight:400;color:#ea580c"></span></div>
+          <div id="news-list-${c.corp_code}" style="color:#94a3b8">뉴스 불러오는 중...</div>
+        </div>
       </div>
     </div>`;
   }).join("");
@@ -368,7 +385,63 @@ function exportCSV() {
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="기업리스트.csv";a.click();
 }
 
-// ─── 탭 ──────────────────────────────────────────────────
+// ─── 상세 토글 + 뉴스 로드 ───────────────────────────────
+const detailLoaded = new Set();
+
+function toggleDetail(corp_code) {
+  const el = document.getElementById(`detail-${corp_code}`);
+  const btn = document.getElementById(`btn-detail-${corp_code}`);
+  const isOpen = el.style.display !== "none";
+  el.style.display = isOpen ? "none" : "block";
+  btn.textContent = isOpen ? "▼ 상세" : "▲ 닫기";
+  if (!isOpen && !detailLoaded.has(corp_code)) {
+    detailLoaded.add(corp_code);
+    const c = currentData.find(x => x.corp_code === corp_code);
+    if (c) loadNews(c.name, corp_code);
+  }
+}
+
+async function loadNews(corpName, corp_code) {
+  try {
+    const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(corpName)}&hl=ko&gl=KR&ceid=KR:ko`;
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
+    const res = await fetch(proxyUrl);
+    const data = await res.json();
+    const xml = data.contents;
+    const doc = new DOMParser().parseFromString(xml, "text/xml");
+    const items = [...doc.querySelectorAll("item")].slice(0, 3);
+
+    const listEl = document.getElementById(`news-list-${corp_code}`);
+    const countEl = document.getElementById(`news-count-${corp_code}`);
+
+    if (!items.length) {
+      listEl.textContent = "관련 뉴스가 없어요";
+      return;
+    }
+
+    countEl.textContent = `(${items.length}건)`;
+    listEl.innerHTML = items.map((item, i) => {
+      const title = item.querySelector("title")?.textContent || "";
+      const pubDate = item.querySelector("pubDate")?.textContent || "";
+      const source = item.querySelector("source")?.textContent || "";
+      const date = pubDate ? new Date(pubDate).toLocaleDateString("ko-KR") : "";
+      const isLast = i === items.length - 1;
+      return `
+        <div style="display:flex;gap:8px;align-items:flex-start;${!isLast?"padding-bottom:8px;border-bottom:1px solid #fed7aa;margin-bottom:8px":""}">
+          <span style="color:#fb923c;flex-shrink:0;margin-top:1px">▸</span>
+          <div>
+            <div style="color:#1e293b;font-weight:500;line-height:1.5">${title}</div>
+            <div style="color:#94a3b8;margin-top:2px">${source}${source&&date?" · ":""}${date}</div>
+          </div>
+        </div>`;
+    }).join("");
+  } catch {
+    const listEl = document.getElementById(`news-list-${corp_code}`);
+    if (listEl) listEl.textContent = "뉴스를 불러올 수 없어요";
+  }
+}
+
+
 function switchTab(t) {
   document.getElementById("panel-search").classList.toggle("hidden",t!=="search");
   document.getElementById("panel-saved").classList.toggle("hidden",t!=="saved");
