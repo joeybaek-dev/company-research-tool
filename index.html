@@ -71,8 +71,13 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
 
   <div id="ps">
     <div class="card">
-      <input type="text" class="si" id="kw" placeholder="🔍 기업명 검색 (2글자 이상 입력하세요)"/>
+      <input type="text" class="si" id="kw" placeholder="🔍 기업명 검색 (비워두면 필터 조건으로만 검색)"/>
       <div class="fr">
+        <div class="fi"><label>업종 (상장사만)</label>
+          <select id="find">
+            <option value="">전체</option>
+          </select>
+        </div>
         <div class="fi"><label>상장 여부</label>
           <select id="fl">
             <option value="">전체</option>
@@ -130,11 +135,13 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
 <script>
 const DART_API = "/api/dart";
 const CORPS_JSON = "/corps.json";
+const CORPS_LISTED_JSON = "/corps-listed.json";
 const PS = 20;
 
 let allCorps = [];       // 전체 기업 목록 (corps.json)
-let filtered = [];       // 필터링된 목록
-let results = [];        // 재무정보 포함 결과
+let listedCorps = [];    // 상장사 상세 목록 (corps-listed.json)
+let filtered = [];
+let results = [];
 let page = 1;
 let chk = new Set();
 let allSel = false;
@@ -146,16 +153,30 @@ let corpsLoaded = false;
 // ─── 초기화: corps.json 로드 ─────────────────────────────
 async function initCorps() {
   try {
-    const res = await fetch(CORPS_JSON);
-    if (!res.ok) throw new Error("corps.json 로드 실패");
-    allCorps = await res.json();
+    // 두 파일 병렬 로드
+    const [r1, r2] = await Promise.all([
+      fetch(CORPS_JSON),
+      fetch(CORPS_LISTED_JSON),
+    ]);
+    allCorps = await r1.json();
+    listedCorps = await r2.json();
     corpsLoaded = true;
+
+    // 업종 드롭다운 채우기
+    const inds = [...new Set(listedCorps.map(c => c.industry_nm).filter(i => i && i !== "-"))].sort();
+    const sel = document.getElementById("find");
+    inds.forEach(ind => {
+      const opt = document.createElement("option");
+      opt.value = ind; opt.textContent = ind;
+      sel.appendChild(opt);
+    });
+
     document.getElementById("init-msg").style.display = "none";
     document.getElementById("header-sub").textContent =
-      `총 ${allCorps.length.toLocaleString()}개 기업 · 상장사 ${allCorps.filter(c=>c.listed).length.toLocaleString()}개`;
-    document.getElementById("kw").placeholder = "🔍 기업명 검색...";
+      `전체 ${allCorps.length.toLocaleString()}개 · 상장사 ${listedCorps.length.toLocaleString()}개 (업종 정보 포함)`;
+    document.getElementById("kw").placeholder = "🔍 기업명 검색 (비워두면 필터 조건으로만 검색)";
     document.getElementById("rc").innerHTML =
-      `<span style="color:#64748b">기업명을 검색하면 재무정보와 함께 표시돼요</span>`;
+      `<span style="color:#64748b">기업명 또는 필터를 선택 후 검색하세요</span>`;
   } catch(e) {
     document.getElementById("init-msg").innerHTML =
       `<div style="color:#ef4444">❌ 기업 목록 로드 실패: ${e.message}</div>`;
@@ -166,7 +187,10 @@ async function initCorps() {
 async function doSearch() {
   if (!corpsLoaded) return alert("기업 목록을 불러오는 중이에요. 잠시 후 시도해주세요.");
   const kw = document.getElementById("kw").value.trim();
-  if (kw.length < 1) return alert("기업명을 입력해주세요.");
+  const lst = document.getElementById("fl").value;
+  const ind = document.getElementById("find").value;
+
+  if (!kw && !lst && !ind) return alert("기업명 또는 필터를 하나 이상 선택해주세요.");
 
   stopFlag = false;
   results = [];
@@ -180,16 +204,34 @@ async function doSearch() {
   document.getElementById("bulk-bar").style.display = "none";
   document.getElementById("pg").innerHTML = "";
 
-  // 1. 기업명 필터링
-  const lst = document.getElementById("fl").value;
-  filtered = allCorps.filter(c => {
-    if (!c.name.includes(kw)) return false;
-    if (lst === "Y" && !c.listed) return false;
-    if (lst === "N" && c.listed) return false;
-    return true;
-  });
+  // 필터링: 업종/지역 있으면 listedCorps 사용, 없으면 allCorps 사용
+  let pool;
+  if (ind) {
+    // 업종 필터 → listedCorps에서
+    pool = listedCorps.filter(c => {
+      if (kw && !c.name.includes(kw)) return false;
+      if (lst === "Y" && !c.listed) return false;
+      if (lst === "N" && c.listed) return false;
+      if (ind && c.industry_nm !== ind) return false;
+      return true;
+    });
+  } else {
+    // 업종 없으면 allCorps에서 (전체 검색)
+    pool = allCorps.filter(c => {
+      if (kw && !c.name.includes(kw)) return false;
+      if (lst === "Y" && !c.listed) return false;
+      if (lst === "N" && c.listed) return false;
+      return true;
+    });
+    // listedCorps의 상세정보 병합
+    pool = pool.map(c => {
+      const detail = listedCorps.find(l => l.corp_code === c.corp_code);
+      return detail ? { ...c, ...detail } : c;
+    });
+  }
 
-  setStatus(`"${kw}" 검색 결과: ${filtered.length.toLocaleString()}개 기업 발견`);
+  filtered = pool;
+  setStatus(`${filtered.length.toLocaleString()}개 기업 발견 → 재무정보 조회 중...`);
   document.getElementById("rc").innerHTML =
     `총 <b style="color:#1e40af">${filtered.length.toLocaleString()}</b>개 기업`;
 
@@ -199,7 +241,7 @@ async function doSearch() {
     return;
   }
 
-  // 2. 재무정보 조회 (최대 50개, 5개씩 병렬)
+  // 재무정보 조회 (최대 50개)
   const targets = filtered.slice(0, 50);
   const year = String(new Date().getFullYear() - 1);
   let done = 0;
@@ -211,32 +253,33 @@ async function doSearch() {
       try {
         const [finRes, detailRes] = await Promise.all([
           fetch(`${DART_API}?action=finance&corp_code=${c.corp_code}&bsns_year=${year}`),
-          fetch(`${DART_API}?action=company&corp_code=${c.corp_code}`)
+          c.industry_nm ? Promise.resolve(null) : fetch(`${DART_API}?action=company&corp_code=${c.corp_code}`)
         ]);
-        const [fin, detail] = await Promise.all([finRes.json(), detailRes.json()]);
+        const fin = await finRes.json();
+        const detail = detailRes ? await detailRes.json() : null;
         const get = nm => {
           const item = (fin.list||[]).find(x => x.account_nm === nm);
           return item ? Math.round(parseInt((item.thstrm_amount||"0").replace(/,/g,"")) / 100000000) : null;
         };
         return {
           ...c,
-          industry_nm: detail.induty_nm || "-",
-          region: detail.adres ? detail.adres.slice(0,2) : "-",
-          founded: detail.est_dt ? detail.est_dt.slice(0,4) : "-",
-          employees: parseInt(detail.emp_no) || null,
-          homepage: detail.hm_url || "",
+          industry_nm: c.industry_nm || detail?.induty_nm || "-",
+          region: c.region || (detail?.adres ? detail.adres.slice(0,2) : "-"),
+          founded: c.founded || (detail?.est_dt ? detail.est_dt.slice(0,4) : "-"),
+          employees: c.employees || parseInt(detail?.emp_no) || null,
+          homepage: c.homepage || detail?.hm_url || "",
           revenue: get("매출액"),
           profit: get("영업이익"),
           assets: get("자산총계"),
         };
-      } catch { return { ...c, industry_nm:"-", region:"-" }; }
+      } catch { return { ...c }; }
     }));
     results.push(...batchRes);
     done += batch.length;
     setStatus(`재무정보 조회 중... (${done}/${Math.min(targets.length, 50)})`);
   }
 
-  // 3. 정렬
+  // 정렬
   const srt = document.getElementById("fs").value;
   results.sort((a,b) => {
     if (srt==="revenue_desc") return (b.revenue||0)-(a.revenue||0);
