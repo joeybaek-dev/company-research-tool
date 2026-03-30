@@ -259,7 +259,17 @@ function render() {
     return;
   }
 
-  document.getElementById("co-list").innerHTML = page.map((c,idx) => {
+  document.getElementById("result-count").innerHTML = `총 <b style="color:#1e40af">${total}</b>개 기업`;
+  document.getElementById("bulk-bar").style.display = total ? "flex" : "none";
+  updateBulkBar();
+
+  if (!page.length) {
+    document.getElementById("co-list").innerHTML = `<div class="empty"><div style="font-size:36px">🔍</div><p style="margin-top:8px">조건에 맞는 기업이 없어요</p></div>`;
+    document.getElementById("pagination").innerHTML = "";
+    return;
+  }
+
+  document.getElementById("co-list").innerHTML = page.map((c) => {
     const isChecked = allSelected || checkedIds.has(c.id);
     const isSaved = savedList.some(s => s.id === c.id);
     const isOpen = detailOpen.has(c.id);
