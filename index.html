@@ -22,17 +22,19 @@ input:focus,select:focus{outline:none;border-color:#1e40af}
 .filter-item{flex:1;min-width:130px}
 .filter-item label{font-size:11px;color:#94a3b8;display:block;margin-bottom:3px}
 .filter-item select,.filter-item input{width:100%}
-.btn{padding:9px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:13px}
+.btn{padding:9px 18px;border-radius:8px;border:none;cursor:pointer;font-weight:700;font-size:13px}
 .btn-primary{background:#1e40af;color:#fff}
 .btn-outline{background:#fff;color:#1e40af;border:1.5px solid #1e40af}
 .btn-green{background:#10b981;color:#fff}
 .btn-red{background:#fff;color:#ef4444;border:1.5px solid #fca5a5}
+.btn-gray{background:#f1f5f9;color:#64748b}
 .btn-sm{padding:6px 12px;font-size:12px}
-.btn:disabled{background:#e2e8f0;color:#94a3b8;cursor:default}
-.company-card{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);border:2px solid transparent}
-.company-card.saved{border-color:#1e40af}
+.btn:disabled{background:#e2e8f0;color:#94a3b8;cursor:default;border-color:#e2e8f0}
+.company-card{background:#fff;border-radius:12px;padding:14px 18px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border:2px solid transparent;transition:border-color .15s}
+.company-card.checked{border-color:#1e40af;background:#fafbff}
+.company-card.saved{border-color:#10b981}
 .tag{font-size:11px;padding:2px 8px;border-radius:20px;display:inline-block}
-.metrics{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
+.metrics{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
 .metric .lbl{font-size:10px;color:#94a3b8}
 .metric .val{font-size:14px;font-weight:800}
 .stats{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
@@ -45,14 +47,21 @@ input:focus,select:focus{outline:none;border-color:#1e40af}
 .empty{text-align:center;padding:60px;color:#94a3b8}
 .error{background:#fee2e2;border-radius:10px;padding:12px 16px;color:#b91c1c;font-size:13px;margin-bottom:14px}
 .hidden{display:none}
-.progress{font-size:12px;color:#64748b;margin-left:10px}
+.progress{font-size:12px;color:#64748b;margin-left:8px}
+.pagination{display:flex;gap:6px;align-items:center;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.page-btn{padding:6px 12px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;font-size:13px;cursor:pointer;font-weight:600}
+.page-btn.active{background:#1e40af;color:#fff;border-color:#1e40af}
+.page-btn:disabled{opacity:.4;cursor:default}
+.bulk-bar{display:flex;gap:8px;align-items:center;padding:10px 14px;background:#eff6ff;border-radius:10px;margin-bottom:10px;flex-wrap:wrap}
+.check-col{width:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="header">
     <h1>🏢 기업 리서치 & 리스트업 툴</h1>
-    <p>DART 재무정보 기반 · 업종/규모/매출 필터 · 뉴스 핫기업 분석</p>
+    <p>DART 재무정보 · 업종/규모/매출 필터 · 페이지별 탐색 · 선택 저장</p>
   </div>
 
   <div class="tabs">
@@ -63,10 +72,10 @@ input:focus,select:focus{outline:none;border-color:#1e40af}
   <!-- 검색 탭 -->
   <div id="panel-search">
     <div class="card">
-      <input type="text" class="search-input" id="keyword" placeholder="🔍 키워드 검색 (기업명, 업종, 지역...)"/>
+      <input type="text" class="search-input" id="keyword" placeholder="🔍 키워드 검색 (기업명 포함 검색...)"/>
       <div class="filter-row">
         <div class="filter-item">
-          <label>업종 (KSIC 대분류)</label>
+          <label>업종 (KSIC)</label>
           <select id="f-industry">
             <option value="">전체</option>
             <option value="C">제조업</option>
@@ -76,16 +85,7 @@ input:focus,select:focus{outline:none;border-color:#1e40af}
             <option value="G">도매·소매업</option>
             <option value="K">금융·보험업</option>
             <option value="F">건설업</option>
-            <option value="A">농업·임업·어업</option>
-          </select>
-        </div>
-        <div class="filter-item">
-          <label>기업 규모</label>
-          <select id="f-size">
-            <option value="">전체</option>
-            <option value="large">대기업 (매출 1조+)</option>
-            <option value="mid">중견 (100억~1조)</option>
-            <option value="small">중소 (100억 미만)</option>
+            <option value="H">운수·창고업</option>
           </select>
         </div>
         <div class="filter-item">
@@ -101,39 +101,48 @@ input:focus,select:focus{outline:none;border-color:#1e40af}
           <select id="f-sort">
             <option value="revenue_desc">매출액 높은 순</option>
             <option value="revenue_asc">매출액 낮은 순</option>
+            <option value="profit_desc">영업이익 높은 순</option>
             <option value="employees_desc">임직원 많은 순</option>
             <option value="name_asc">기업명 가나다순</option>
           </select>
         </div>
       </div>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-primary" id="btn-load" onclick="loadCompanies()">🔍 검색하기</button>
-      <button class="btn btn-red btn-sm" id="btn-stop" onclick="stopLoad()" style="display:none">⏹ 중단</button>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary" id="btn-search" onclick="doSearch(1)">🔍 검색하기</button>
+        <button class="btn btn-red btn-sm" id="btn-stop" onclick="stopLoad()" style="display:none">⏹ 중단</button>
         <span id="progress" class="progress"></span>
-        <span style="font-size:12px;color:#94a3b8;margin-left:4px">필터 설정 후 검색하면 빠르게 불러와요</span>
       </div>
     </div>
 
     <div id="error" class="error hidden"></div>
-
     <div id="loading" class="loading hidden">
       <div class="spinner"></div>
-      <div>DART에서 기업 데이터를 불러오는 중...</div>
-      <div id="load-msg" style="font-size:12px;color:#94a3b8;margin-top:6px"></div>
+      <div id="load-msg">DART 데이터 불러오는 중...</div>
     </div>
 
-    <div id="result-header" class="hidden" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-      <span id="result-count" style="font-size:13px;color:#64748b"></span>
-      <button class="btn btn-outline btn-sm" onclick="saveAll()">검색결과 전체 저장</button>
+    <!-- 결과 헤더 -->
+    <div id="result-area" class="hidden">
+      <div id="bulk-bar" class="bulk-bar">
+        <input type="checkbox" id="chk-all" onchange="toggleSelectAll(this.checked)" title="현재 페이지 전체선택"/>
+        <span style="font-size:13px;color:#1e40af;font-weight:600">현재 페이지 전체선택</span>
+        <span id="chk-count" style="font-size:12px;color:#64748b"></span>
+        <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="selectAllPages()">📋 전체 페이지 선택</button>
+          <button class="btn btn-primary btn-sm" onclick="saveChecked()">✚ 선택 저장</button>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+        <span id="result-count" style="font-size:13px;color:#64748b"></span>
+      </div>
+      <div id="company-list"></div>
+      <div id="pagination" class="pagination"></div>
     </div>
-
-    <div id="company-list"></div>
   </div>
 
   <!-- 저장 탭 -->
   <div id="panel-saved" class="hidden">
     <div class="stats" id="saved-stats"></div>
-    <div style="display:flex;gap:10px;margin-bottom:14px;justify-content:flex-end;flex-wrap:wrap">
+    <div style="display:flex;gap:8px;margin-bottom:14px;justify-content:flex-end;flex-wrap:wrap">
       <button class="btn btn-green btn-sm" onclick="exportCSV()">📥 CSV 내보내기</button>
       <button class="btn btn-red btn-sm" onclick="clearAll()">전체 삭제</button>
     </div>
@@ -142,186 +151,190 @@ input:focus,select:focus{outline:none;border-color:#1e40af}
 </div>
 
 <script>
-// ─── 설정 ────────────────────────────────────────────────
-const API_BASE = "/api/dart";
+const API = "/api/dart";
+let currentData = [];      // 현재 페이지 데이터
+let allCorpCodes = [];     // 전체 검색결과 corp_code 목록 (전체선택용)
+let totalCount = 0;
+let currentPage = 1;
+let totalPages = 1;
+const PAGE_SIZE = 50;
+let savedList = JSON.parse(localStorage.getItem("co_saved") || "[]");
+let checkedIds = new Set();
+let allSelected = false;   // 전체 페이지 선택 여부
+let abortFlag = false;
 
-let allCompanies = [];
-let filtered = [];
-let savedList = JSON.parse(localStorage.getItem("company_saved") || "[]");
-let abortLoad = false;
-
-// ─── DART API 호출 ────────────────────────────────────────
-async function dartAPI(endpoint, params = {}) {
-  const query = new URLSearchParams({ endpoint, ...params }).toString();
-  const res = await fetch(`${API_BASE}?${query}`);
+// ─── API 호출 ─────────────────────────────────────────────
+async function callAPI(params) {
+  const q = new URLSearchParams(params).toString();
+  const res = await fetch(`${API}?${q}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
-// ─── 기업 데이터 로드 ─────────────────────────────────────
-function stopLoad() {
-  abortLoad = true;
-  document.getElementById("btn-stop").style.display = "none";
-  document.getElementById("btn-load").disabled = false;
-  setProgress("⏹ 중단됨 — 지금까지 수집된 데이터로 표시해요");
-}
-
-async function loadCompanies() {
+// ─── 검색 ─────────────────────────────────────────────────
+async function doSearch(page = 1) {
+  abortFlag = false;
+  currentPage = page;
+  checkedIds.clear();
+  allSelected = false;
   showLoading(true);
   setError("");
-  allCompanies = [];
-  abortLoad = false;
+
   document.getElementById("btn-stop").style.display = "inline-block";
-  document.getElementById("btn-load").disabled = true;
+  document.getElementById("btn-search").disabled = true;
+
+  const keyword = document.getElementById("keyword").value.trim();
+  const induty_code = document.getElementById("f-industry").value;
+  const listed = document.getElementById("f-listed").value;
+  const year = String(new Date().getFullYear() - 1);
+
+  setMsg(`기업 검색 중... (${year}년 기준)`);
 
   try {
-    setMsg("상장기업 목록 불러오는 중...");
-    // DART 상장기업 목록
-    const data = await dartAPI("corpCode.xml"); // ZIP 형태라 아래 방식으로 대체
-    // 재무정보 있는 기업 목록
-    const year = new Date().getFullYear() - 1;
-    setMsg("기업 재무정보 조회 중...");
+    const data = await callAPI({ action:"search", keyword, induty_code, listed, year, page, limit: PAGE_SIZE });
+    if (abortFlag) return;
 
-    // 복수 기업 재무정보 한번에 조회
-    const finData = await dartAPI("fnlttMultiAcnt.json", {
-      bsns_year: year,
-      reprt_code: "11011", // 사업보고서
-      fs_div: "OFS" // 개별재무제표
-    });
+    currentData = sortData(data.list || []);
+    totalCount = data.total || currentData.length;
+    totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
-    if (finData.status !== "000") throw new Error(finData.message);
-
-    // 기업별로 그룹핑
-    const corpMap = {};
-    (finData.list || []).forEach(item => {
-      if (!corpMap[item.corp_code]) {
-        corpMap[item.corp_code] = {
-          corp_code: item.corp_code,
-          name: item.corp_name,
-          stock_code: item.stock_code,
-          listed: !!item.stock_code,
-          revenue: null, profit: null, assets: null,
-        };
-      }
-      const v = parseInt((item.thstrm_amount || "0").replace(/,/g, "")) / 100000000; // 억원
-      if (item.account_nm === "매출액") corpMap[item.corp_code].revenue = v;
-      if (item.account_nm === "영업이익") corpMap[item.corp_code].profit = v;
-      if (item.account_nm === "자산총계") corpMap[item.corp_code].assets = v;
-    });
-
-    // 기업 상세정보 추가 (샘플 10개만)
-    const corps = Object.values(corpMap).slice(0, 200);
-    setMsg(`${corps.length}개 기업 정보 조회 중...`);
-
-    const results = await Promise.all(
-      corps.slice(0, 30).map(async (c) => {
-        try {
-          const detail = await dartAPI("company.json", { corp_code: c.corp_code });
-          return {
-            ...c,
-            industry_nm: detail.induty_nm || "-",
-            industry_code: detail.induty_code || "",
-            region: detail.adres?.slice(0, 2) || "-",
-            founded: detail.est_dt?.slice(0, 4) || "-",
-            employees: parseInt(detail.emp_no) || null,
-            homepage: detail.hm_url || "",
-          };
-        } catch {
-          return { ...c, industry_nm: "-", region: "-" };
-        }
-      })
-    );
-
-    allCompanies = results.filter(c => c.name);
     showLoading(false);
-    document.getElementById("btn-stop").style.display = "none";
-    document.getElementById("btn-load").disabled = false;
-    applyFilter();
-    setProgress(`✅ ${allCompanies.length}개 기업 로드 완료`);
-  } catch (e) {
+    document.getElementById("result-area").classList.remove("hidden");
+    document.getElementById("result-count").innerHTML =
+      `총 <b style="color:#1e40af">${totalCount.toLocaleString()}</b>개 기업 중 <b>${currentData.length}</b>개 표시 (${page}/${totalPages} 페이지)`;
+
+    renderList();
+    renderPagination();
+    updateBulkBar();
+    setProgress(`✅ ${currentData.length}개 로드 완료`);
+  } catch(e) {
+    if (!abortFlag) setError(`검색 실패: ${e.message}`);
     showLoading(false);
-    document.getElementById("btn-stop").style.display = "none";
-    document.getElementById("btn-load").disabled = false;
-    setError(`데이터 로드 실패: ${e.message}`);
   }
+
+  document.getElementById("btn-stop").style.display = "none";
+  document.getElementById("btn-search").disabled = false;
 }
 
-// ─── 필터 & 정렬 ──────────────────────────────────────────
-function applyFilter() {
-  const kw = document.getElementById("keyword").value.toLowerCase();
-  const ind = document.getElementById("f-industry").value;
-  const size = document.getElementById("f-size").value;
-  const listed = document.getElementById("f-listed").value;
-  const sort = document.getElementById("f-sort").value;
+function stopLoad() {
+  abortFlag = true;
+  document.getElementById("btn-stop").style.display = "none";
+  document.getElementById("btn-search").disabled = false;
+  showLoading(false);
+  setProgress("⏹ 중단됨");
+}
 
-  filtered = allCompanies.filter(c => {
-    const rev = c.revenue || 0;
-    return (
-      (!kw || c.name?.toLowerCase().includes(kw) || c.industry_nm?.includes(kw) || c.region?.includes(kw)) &&
-      (!ind || (c.industry_code || "").startsWith(ind)) &&
-      (!size || (size==="large"&&rev>=10000)||(size==="mid"&&rev>=100&&rev<10000)||(size==="small"&&rev<100)) &&
-      (!listed || (listed==="Y"?c.listed:!c.listed))
-    );
-  }).sort((a, b) => {
+// ─── 정렬 ─────────────────────────────────────────────────
+function sortData(list) {
+  const sort = document.getElementById("f-sort").value;
+  return [...list].sort((a, b) => {
     if (sort==="revenue_desc") return (b.revenue||0)-(a.revenue||0);
     if (sort==="revenue_asc") return (a.revenue||0)-(b.revenue||0);
+    if (sort==="profit_desc") return (b.profit||0)-(a.profit||0);
     if (sort==="employees_desc") return (b.employees||0)-(a.employees||0);
     if (sort==="name_asc") return (a.name||"").localeCompare(b.name||"","ko");
     return 0;
   });
-
-  renderResults();
 }
 
 // ─── 렌더링 ───────────────────────────────────────────────
-function renderResults() {
-  const rh = document.getElementById("result-header");
-  rh.classList.remove("hidden");
-  rh.style.display = "flex";
-  document.getElementById("result-count").innerHTML =
-    `총 <b style="color:#1e40af">${filtered.length}</b>개 기업`;
-
-  if (!filtered.length) {
-    document.getElementById("company-list").innerHTML =
-      `<div class="empty"><div style="font-size:36px">🔍</div><p style="margin-top:8px">조건에 맞는 기업이 없어요</p></div>`;
-    return;
-  }
-
-  document.getElementById("company-list").innerHTML = filtered.slice(0, 100).map((c, i) => `
-    <div class="company-card ${isSaved(c.corp_code)?"saved":""}" id="card-${c.corp_code}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+function renderList() {
+  document.getElementById("company-list").innerHTML = currentData.map(c => {
+    const isChecked = allSelected || checkedIds.has(c.corp_code);
+    const isSavedCo = savedList.some(s => s.corp_code === c.corp_code);
+    return `
+    <div class="company-card ${isChecked?"checked":""} ${isSavedCo?"saved":""}" id="card-${c.corp_code}">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div class="check-col">
+          <input type="checkbox" ${isChecked?"checked":""} onchange="toggleCheck('${c.corp_code}',this.checked)"/>
+        </div>
         <div style="flex:1">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <span style="font-size:12px;font-weight:800;color:#94a3b8">#${i+1}</span>
             <span style="font-weight:800;font-size:15px;color:#0f172a">${c.name}</span>
             ${c.listed?`<span class="tag" style="background:#eff6ff;color:#1d4ed8">📈 상장</span>`:`<span class="tag" style="background:#f1f5f9;color:#64748b">비상장</span>`}
             ${c.region&&c.region!=="-"?`<span class="tag" style="background:#f8fafc;color:#64748b">${c.region}</span>`:""}
+            ${isSavedCo?`<span class="tag" style="background:#dcfce7;color:#15803d">✓ 저장됨</span>`:""}
           </div>
-          <div style="font-size:12px;color:#64748b;margin-top:4px">${c.industry_nm||"-"} · 설립 ${c.founded||"-"}년${c.homepage?` · <a href="${c.homepage}" target="_blank" style="color:#1e40af">홈페이지</a>`:""}</div>
+          <div style="font-size:12px;color:#64748b;margin-top:3px">${c.industry_nm||"-"} · 설립 ${c.founded||"-"}년${c.homepage?` · <a href="${c.homepage}" target="_blank" style="color:#1e40af">홈페이지↗</a>`:""}</div>
           <div class="metrics">
-            <div class="metric"><div class="lbl">매출</div><div class="val" style="color:#f59e0b">${c.revenue!=null?fmt(c.revenue)+"억":"-"}</div></div>
-            <div class="metric"><div class="lbl">영업이익</div><div class="val" style="color:${(c.profit||0)>=0?"#10b981":"#ef4444"}">${c.profit!=null?fmt(c.profit)+"억":"-"}</div></div>
-            <div class="metric"><div class="lbl">자산</div><div class="val" style="color:#7c3aed">${c.assets!=null?fmt(c.assets)+"억":"-"}</div></div>
+            <div class="metric"><div class="lbl">매출</div><div class="val" style="color:#f59e0b">${fmt(c.revenue)}</div></div>
+            <div class="metric"><div class="lbl">영업이익</div><div class="val" style="color:${(c.profit||0)>=0?"#10b981":"#ef4444"}">${fmt(c.profit)}</div></div>
+            <div class="metric"><div class="lbl">자산</div><div class="val" style="color:#7c3aed">${fmt(c.assets)}</div></div>
             ${c.employees?`<div class="metric"><div class="lbl">임직원</div><div class="val" style="color:#0ea5e9">${c.employees.toLocaleString()}명</div></div>`:""}
           </div>
         </div>
-        <button class="btn btn-sm ${isSaved(c.corp_code)?"btn-primary":"btn-outline"}" onclick="toggleSave('${c.corp_code}')">
-          ${isSaved(c.corp_code)?"✓ 저장됨":"+ 저장"}
-        </button>
       </div>
-    </div>
-  `).join("");
+    </div>`;
+  }).join("");
 }
+
+function renderPagination() {
+  if (totalPages <= 1) { document.getElementById("pagination").innerHTML = ""; return; }
+  const p = currentPage;
+  let html = `<button class="page-btn" onclick="doSearch(${p-1})" ${p<=1?"disabled":""}>‹ 이전</button>`;
+  const start = Math.max(1, p-2), end = Math.min(totalPages, p+2);
+  if (start > 1) html += `<button class="page-btn" onclick="doSearch(1)">1</button>${start>2?`<span style="color:#94a3b8">…</span>`:""}`;
+  for (let i=start;i<=end;i++) html += `<button class="page-btn ${i===p?"active":""}" onclick="doSearch(${i})">${i}</button>`;
+  if (end < totalPages) html += `${end<totalPages-1?`<span style="color:#94a3b8">…</span>`:""}<button class="page-btn" onclick="doSearch(${totalPages})">${totalPages}</button>`;
+  html += `<button class="page-btn" onclick="doSearch(${p+1})" ${p>=totalPages?"disabled":""}>다음 ›</button>`;
+  document.getElementById("pagination").innerHTML = html;
+}
+
+// ─── 체크박스 ─────────────────────────────────────────────
+function toggleCheck(id, checked) {
+  allSelected = false;
+  checked ? checkedIds.add(id) : checkedIds.delete(id);
+  const card = document.getElementById(`card-${id}`);
+  if (card) card.className = `company-card ${checked?"checked":""} ${savedList.some(s=>s.corp_code===id)?"saved":""}`;
+  updateBulkBar();
+}
+
+function toggleSelectAll(checked) {
+  allSelected = false;
+  currentData.forEach(c => checked ? checkedIds.add(c.corp_code) : checkedIds.delete(c.corp_code));
+  renderList();
+  updateBulkBar();
+}
+
+function selectAllPages() {
+  allSelected = true;
+  currentData.forEach(c => checkedIds.add(c.corp_code));
+  renderList();
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const count = allSelected ? totalCount : checkedIds.size;
+  document.getElementById("chk-count").textContent = count > 0 ? `${count}개 선택됨` : "";
+  document.getElementById("chk-all").checked = currentData.length > 0 && currentData.every(c => checkedIds.has(c.corp_code));
+}
+
+function saveChecked() {
+  const toSave = allSelected
+    ? currentData
+    : currentData.filter(c => checkedIds.has(c.corp_code));
+  let added = 0;
+  toSave.forEach(c => {
+    if (!savedList.some(s=>s.corp_code===c.corp_code)) { savedList.push(c); added++; }
+  });
+  saveStorage();
+  renderList();
+  updateBulkBar();
+  setProgress(`✅ ${added}개 저장 완료 (전체 ${savedList.length}개)`);
+}
+
+// ─── 저장 관리 ────────────────────────────────────────────
+const saveStorage = () => { localStorage.setItem("co_saved", JSON.stringify(savedList)); document.getElementById("tab-saved").textContent=`📋 저장 리스트 (${savedList.length})`; };
 
 function renderSaved() {
   document.getElementById("saved-stats").innerHTML = [
-    ["전체", savedList.length, "#1e40af"],
-    ["상장", savedList.filter(c=>c.listed).length, "#1d4ed8"],
-    ["비상장", savedList.filter(c=>!c.listed).length, "#64748b"],
+    ["전체",savedList.length,"#1e40af"],
+    ["상장",savedList.filter(c=>c.listed).length,"#1d4ed8"],
+    ["비상장",savedList.filter(c=>!c.listed).length,"#64748b"],
   ].map(([l,n,c])=>`<div class="stat" style="border-left:4px solid ${c}"><div class="num" style="color:${c}">${n}</div><div class="lbl">${l}</div></div>`).join("");
 
   if (!savedList.length) {
-    document.getElementById("saved-list").innerHTML = `<div class="empty"><div style="font-size:36px">📋</div><p style="margin-top:8px">검색 탭에서 기업을 저장해보세요!</p></div>`;
+    document.getElementById("saved-list").innerHTML=`<div class="empty"><div style="font-size:36px">📋</div><p style="margin-top:8px">검색 탭에서 기업을 저장해보세요!</p></div>`;
     return;
   }
   document.getElementById("saved-list").innerHTML = savedList.map(c=>`
@@ -335,30 +348,18 @@ function renderSaved() {
           </div>
           <div style="font-size:12px;color:#64748b;margin-top:3px">${c.industry_nm||"-"}</div>
           <div class="metrics">
-            <div class="metric"><div class="lbl">매출</div><div class="val" style="color:#f59e0b">${c.revenue!=null?fmt(c.revenue)+"억":"-"}</div></div>
-            <div class="metric"><div class="lbl">영업이익</div><div class="val" style="color:#10b981">${c.profit!=null?fmt(c.profit)+"억":"-"}</div></div>
+            <div class="metric"><div class="lbl">매출</div><div class="val" style="color:#f59e0b">${fmt(c.revenue)}</div></div>
+            <div class="metric"><div class="lbl">영업이익</div><div class="val" style="color:#10b981">${fmt(c.profit)}</div></div>
           </div>
         </div>
         <button class="btn btn-red btn-sm" onclick="removeSaved('${c.corp_code}')">삭제</button>
       </div>
-    </div>
-  `).join("");
+    </div>`).join("");
 }
 
-// ─── 저장 관리 ────────────────────────────────────────────
-const isSaved = id => savedList.some(c=>c.corp_code===id);
-const saveStorage = () => { localStorage.setItem("company_saved", JSON.stringify(savedList)); document.getElementById("tab-saved").textContent=`📋 저장 리스트 (${savedList.length})`; };
-function toggleSave(id) {
-  const c = allCompanies.find(c=>c.corp_code===id);
-  if (!c) return;
-  isSaved(id) ? savedList=savedList.filter(s=>s.corp_code!==id) : savedList.push(c);
-  saveStorage(); renderResults();
-}
 function removeSaved(id) { savedList=savedList.filter(c=>c.corp_code!==id); saveStorage(); renderSaved(); }
-function saveAll() { filtered.forEach(c=>{if(!isSaved(c.corp_code))savedList.push(c);}); saveStorage(); renderResults(); }
 function clearAll() { if(confirm("전체 삭제할까요?")){ savedList=[]; saveStorage(); renderSaved(); } }
 
-// ─── CSV 내보내기 ─────────────────────────────────────────
 function exportCSV() {
   const rows=[["기업명","업종","지역","상장","매출(억)","영업이익(억)","자산(억)","임직원","설립연도","DART코드"]];
   savedList.forEach(c=>rows.push([c.name,c.industry_nm||"-",c.region||"-",c.listed?"상장":"비상장",c.revenue??"-",c.profit??"-",c.assets??"-",c.employees??"-",c.founded||"-",c.corp_code]));
@@ -367,20 +368,20 @@ function exportCSV() {
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="기업리스트.csv";a.click();
 }
 
-// ─── 탭 전환 ─────────────────────────────────────────────
+// ─── 탭 ──────────────────────────────────────────────────
 function switchTab(t) {
-  document.getElementById("panel-search").classList.toggle("hidden", t!=="search");
-  document.getElementById("panel-saved").classList.toggle("hidden", t!=="saved");
+  document.getElementById("panel-search").classList.toggle("hidden",t!=="search");
+  document.getElementById("panel-saved").classList.toggle("hidden",t!=="saved");
   document.querySelectorAll(".tab").forEach((el,i)=>el.classList.toggle("active",(i===0)===(t==="search")));
   if(t==="saved") renderSaved();
 }
 
 // ─── UI 헬퍼 ─────────────────────────────────────────────
-const fmt = v => { if(v==null)return"-"; if(v>=10000)return`${(v/10000).toFixed(1)}조`; if(v>=1000)return`${(v/1000).toFixed(0)}천`; return Math.round(v).toLocaleString(); };
-function showLoading(v) { document.getElementById("loading").classList.toggle("hidden",!v); document.getElementById("company-list").innerHTML=""; document.getElementById("result-header").classList.add("hidden"); }
-function setError(msg) { const el=document.getElementById("error"); el.textContent=msg; el.classList.toggle("hidden",!msg); }
-function setProgress(msg) { document.getElementById("progress").textContent=msg; }
-function setMsg(msg) { document.getElementById("load-msg").textContent=msg; }
+const fmt = v => { if(v==null)return"-"; if(Math.abs(v)>=10000)return`${(v/10000).toFixed(1)}조`; if(Math.abs(v)>=1000)return`${(v/1000).toFixed(0)}천억`; return`${Math.round(v).toLocaleString()}억`; };
+function showLoading(v) { document.getElementById("loading").classList.toggle("hidden",!v); if(v){document.getElementById("result-area").classList.add("hidden");} }
+function setError(msg){const el=document.getElementById("error");el.textContent=msg;el.classList.toggle("hidden",!msg);}
+function setProgress(msg){document.getElementById("progress").textContent=msg;}
+function setMsg(msg){document.getElementById("load-msg").textContent=msg;}
 </script>
 </body>
 </html>
