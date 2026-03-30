@@ -13,7 +13,14 @@ export default async function handler(req, res) {
 
   try {
     if (action !== "search") {
-      return res.status(400).json({ error: "action=search 만 지원합니다" });
+      // 일반 DART API 중계
+      const { endpoint, ...rest } = req.query;
+      if (!endpoint) return res.status(400).json({ error: "endpoint 파라미터 필요" });
+      const query = new URLSearchParams({ crtfc_key: DART_KEY, ...rest }).toString();
+      const response = await fetch(`${DART_BASE}/${endpoint}?${query}`);
+      const text = await response.text();
+      try { return res.status(200).json(JSON.parse(text)); }
+      catch { return res.status(200).send(text); }
     }
 
     const bsns_year = year || String(new Date().getFullYear() - 1);
