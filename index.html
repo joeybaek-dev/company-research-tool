@@ -244,7 +244,6 @@ function applyFilter() {
 
 // ─── 렌더링 ───────────────────────────────────────────────
 function render() {
-  const total = filtered.length;
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const start = (currentPage - 1) * PAGE_SIZE;
   const page = filtered.slice(start, start + PAGE_SIZE);
@@ -254,7 +253,13 @@ function render() {
   document.getElementById("bulk-bar").style.display = total ? "flex" : "none";
   updateBulkBar();
 
-  document.getElementById("co-list").innerHTML = page.map(c => {
+  if (page.length === 0) {
+    document.getElementById("co-list").innerHTML = `<div class="empty"><div style="font-size:36px">🔍</div><p style="margin-top:8px">조건에 맞는 기업이 없어요</p></div>`;
+    document.getElementById("pagination").innerHTML = "";
+    return;
+  }
+
+  document.getElementById("co-list").innerHTML = page.map((c,idx) => {
     const isChecked = allSelected || checkedIds.has(c.id);
     const isSaved = savedList.some(s => s.id === c.id);
     const isOpen = detailOpen.has(c.id);
@@ -309,7 +314,8 @@ function render() {
 }
 
 function renderPagination(total) {
-  if (total <= 1) { document.getElementById("pagination").innerHTML=""; return; }
+  const pEl = document.getElementById("pagination");
+  if (total <= 1) { pEl.innerHTML=""; return; }
   const p = currentPage;
   let html = `<button class="pg-btn" onclick="goPage(${p-1})" ${p<=1?"disabled":""}>‹</button>`;
   const s = Math.max(1,p-2), e = Math.min(total,p+2);
@@ -317,7 +323,7 @@ function renderPagination(total) {
   for(let i=s;i<=e;i++) html+=`<button class="pg-btn ${i===p?"active":""}" onclick="goPage(${i})">${i}</button>`;
   if(e<total) html+=`${e<total-1?`<span style="color:#94a3b8">…</span>`:""}<button class="pg-btn" onclick="goPage(${total})">${total}</button>`;
   html+=`<button class="pg-btn" onclick="goPage(${p+1})" ${p>=total?"disabled":""}>›</button>`;
-  document.getElementById("pagination").innerHTML = html;
+  pEl.innerHTML = html;
 }
 
 function goPage(p) { currentPage=p; checkedIds.clear(); render(); window.scrollTo({top:0,behavior:"smooth"}); }
