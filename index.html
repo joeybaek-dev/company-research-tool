@@ -107,9 +107,10 @@ input:focus,select:focus{outline:none;border-color:#1e40af}
         </div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-primary" id="btn-load" onclick="loadCompanies()">🔄 기업 데이터 불러오기</button>
-        <button class="btn btn-outline" onclick="applyFilter()">🔍 필터 적용</button>
+        <button class="btn btn-primary" id="btn-load" onclick="loadCompanies()">🔍 검색하기</button>
+      <button class="btn btn-red btn-sm" id="btn-stop" onclick="stopLoad()" style="display:none">⏹ 중단</button>
         <span id="progress" class="progress"></span>
+        <span style="font-size:12px;color:#94a3b8;margin-left:4px">필터 설정 후 검색하면 빠르게 불러와요</span>
       </div>
     </div>
 
@@ -147,6 +148,7 @@ const API_BASE = "/api/dart";
 let allCompanies = [];
 let filtered = [];
 let savedList = JSON.parse(localStorage.getItem("company_saved") || "[]");
+let abortLoad = false;
 
 // ─── DART API 호출 ────────────────────────────────────────
 async function dartAPI(endpoint, params = {}) {
@@ -157,10 +159,20 @@ async function dartAPI(endpoint, params = {}) {
 }
 
 // ─── 기업 데이터 로드 ─────────────────────────────────────
+function stopLoad() {
+  abortLoad = true;
+  document.getElementById("btn-stop").style.display = "none";
+  document.getElementById("btn-load").disabled = false;
+  setProgress("⏹ 중단됨 — 지금까지 수집된 데이터로 표시해요");
+}
+
 async function loadCompanies() {
   showLoading(true);
   setError("");
   allCompanies = [];
+  abortLoad = false;
+  document.getElementById("btn-stop").style.display = "inline-block";
+  document.getElementById("btn-load").disabled = true;
 
   try {
     setMsg("상장기업 목록 불러오는 중...");
@@ -222,10 +234,14 @@ async function loadCompanies() {
 
     allCompanies = results.filter(c => c.name);
     showLoading(false);
+    document.getElementById("btn-stop").style.display = "none";
+    document.getElementById("btn-load").disabled = false;
     applyFilter();
     setProgress(`✅ ${allCompanies.length}개 기업 로드 완료`);
   } catch (e) {
     showLoading(false);
+    document.getElementById("btn-stop").style.display = "none";
+    document.getElementById("btn-load").disabled = false;
     setError(`데이터 로드 실패: ${e.message}`);
   }
 }
