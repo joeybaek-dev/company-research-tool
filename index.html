@@ -343,10 +343,28 @@ async function loadNews(c) {
   if (newsCache[c.id]) { renderNews(c.id, newsCache[c.id]); return; }
   try {
     const rss = `https://news.google.com/rss/search?q=${encodeURIComponent(c.name)}&hl=ko&gl=KR&ceid=KR:ko`;
-    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(rss)}`;
-    const res = await fetch(proxy);
-    const data = await res.json();
-    const doc = new DOMParser().parseFromString(data.contents, "text/xml");
+    // 여러 프록시 순차 시도
+    const proxies = [
+      `https://api.allorigins.win/get?url=${encodeURIComponent(rss)}`,
+      `https://corsproxy.io/?${encodeURIComponent(rss)}`,
+    ];
+    let xml = null;
+    for (const proxy of proxies) {
+      try {
+        const res = await fetch(proxy, { signal: AbortSignal.timeout(5000) });
+        if (!res.ok) continue;
+        const isAllOrigins = proxy.includes("allorigins");
+        if (isAllOrigins) {
+          const data = await res.json();
+          xml = data.contents;
+        } else {
+          xml = await res.text();
+        }
+        if (xml && xml.includes("<item>")) break;
+      } catch { continue; }
+    }
+    if (!xml) throw new Error("프록시 모두 실패");
+    const doc = new DOMParser().parseFromString(xml, "text/xml");
     const items = [...doc.querySelectorAll("item")].slice(0,3).map(item => ({
       title: item.querySelector("title")?.textContent || "",
       source: item.querySelector("source")?.textContent || "",
@@ -468,11 +486,14 @@ function switchTab(t) {
 }
 
 // ─── 유틸 ────────────────────────────────────────────────
+// 매출 단위: 백만원
 const fmt = v => {
   if(!v) return "-";
-  if(v>=100000) return `${(v/100000).toFixed(0)}억`;
-  if(v>=10000) return `${(v/10000).toFixed(1)}억`;
-  if(v>=1000) return `${(v/1000).toFixed(0)}천만`;
+  const억 = v / 100;        // 백만원 → 억원
+  if(억 >= 10000) return `${(억/10000).toFixed(1)}조`;
+  if(억 >= 1000) return `${(억/1000).toFixed(0)}천억`;
+  if(억 >= 100) return `${Math.round(억/100)*100}억`.replace("00억","00억");
+  if(억 >= 1) return `${억.toFixed(0)}억`;
   return `${v}백만`;
 };
 
