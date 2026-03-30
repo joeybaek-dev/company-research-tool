@@ -321,30 +321,56 @@ async function lnews(c){
   if(!el)return;
   if(nc[c.id]){rNews(c.id,nc[c.id]);return;}
   try{
-    const rss=`https://news.google.com/rss/search?q=${encodeURIComponent(c.name)}&hl=ko&gl=KR&ceid=KR:ko`;
-    const proxies=[
-      `https://api.allorigins.win/get?url=${encodeURIComponent(rss)}`,
-      `https://corsproxy.io/?${encodeURIComponent(rss)}`,
+    // 구글 뉴스 RSS - 다양한 URL 형식 시도
+    const rssUrls=[
+      `https://news.google.com/rss/search?q=${encodeURIComponent(c.name+" 기업")}&hl=ko&gl=KR`,
+      `https://news.google.com/rss/search?q=${encodeURIComponent(c.name)}&hl=ko`,
     ];
-    let xml=null;
-    for(const px of proxies){
-      try{
-        const r=await fetch(px,{signal:AbortSignal.timeout(5000)});
-        if(!r.ok)continue;
-        xml=px.includes("allorigins")?(await r.json()).contents:await r.text();
-        if(xml&&xml.includes("<item>"))break;
-      }catch{continue;}
+    const proxies=[
+      (u)=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+      (u)=>`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(u)}`,
+    ];
+    let items=null;
+    for(const rss of rssUrls){
+      for(const mkProxy of proxies){
+        try{
+          const px=mkProxy(rss);
+          const r=await fetch(px,{signal:AbortSignal.timeout(6000)});
+          if(!r.ok)continue;
+          // rss2json 방식
+          if(px.includes("rss2json")){
+            const d=await r.json();
+            if(d.status==="ok"&&d.items?.length){
+              items=d.items.slice(0,3).map(i=>({
+                title:i.title||"",
+                source:i.author||"",
+                date:i.pubDate||"",
+              }));
+              break;
+            }
+          } else {
+            // raw XML 방식
+            const xml=await r.text();
+            if(!xml||!xml.includes("<item>"))continue;
+            const doc=new DOMParser().parseFromString(xml,"text/xml");
+            const its=[...doc.querySelectorAll("item")].slice(0,3);
+            if(its.length){
+              items=its.map(i=>({
+                title:i.querySelector("title")?.textContent||"",
+                source:i.querySelector("source")?.textContent||"",
+                date:i.querySelector("pubDate")?.textContent||"",
+              }));
+              break;
+            }
+          }
+        }catch{continue;}
+      }
+      if(items)break;
     }
-    if(!xml)throw new Error("fail");
-    const doc=new DOMParser().parseFromString(xml,"text/xml");
-    const items=[...doc.querySelectorAll("item")].slice(0,3).map(i=>({
-      title:i.querySelector("title")?.textContent||"",
-      source:i.querySelector("source")?.textContent||"",
-      date:i.querySelector("pubDate")?.textContent||"",
-    }));
+    if(!items||!items.length)throw new Error("no items");
     nc[c.id]=items;
     rNews(c.id,items);
-  }catch{if(el)el.textContent="뉴스를 불러올 수 없어요";}
+  }catch{if(el)el.textContent="최근 뉴스가 없어요";}
 }
 
 function rNews(id,items){
