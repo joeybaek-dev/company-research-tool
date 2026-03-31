@@ -473,8 +473,8 @@ async function doSearch(){
         const fin=await finRes.json();
         const det=detRes?await detRes.json():null;
         const get=nm=>{const item=(fin.list||[]).find(x=>x.account_nm===nm);return item?Math.round(parseInt((item.thstrm_amount||"0").replace(/,/g,""))/100000000):null;};
-        const empNo = parseInt(det?.emp_no)||c.employees||null;
-        const indNm = (c.industry_nm&&c.industry_nm!=="-") ? c.industry_nm : (det?.induty_nm||"-");
+        const empNo = det?.status==="000" ? (parseInt((det.emp_no||"0").replace(/,/g,""))||null) : (c.employees||null);
+        const indNm = (c.industry_nm&&c.industry_nm!=="-") ? c.industry_nm : (det?.status==="000"&&det.induty_nm ? det.induty_nm : "-");
         return{...c,
           industry_nm: indNm,
           region:c.region||(det?.adres?det.adres.slice(0,2):"-"),
