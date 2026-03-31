@@ -466,21 +466,30 @@ async function doSearch(){
     const bRes=await Promise.all(batch.map(async c=>{
       try{
         const needDetail = !c.employees || !c.industry_nm || c.industry_nm==="-";
-        const[finRes,detRes]=await Promise.all([
+        const[finRes,detRes,empRes]=await Promise.all([
           fetch(`${DART_API}?action=finance&corp_code=${c.corp_code}&bsns_year=${year}`),
-          needDetail?fetch(`${DART_API}?action=company&corp_code=${c.corp_code}`):Promise.resolve(null)
+          needDetail?fetch(`${DART_API}?action=company&corp_code=${c.corp_code}`):Promise.resolve(null),
+          needDetail?fetch(`${DART_API}?action=empstatus&corp_code=${c.corp_code}&bsns_year=${year}`):Promise.resolve(null),
         ]);
         const fin=await finRes.json();
         const det=detRes?await detRes.json():null;
+        const emp=empRes?await empRes.json():null;
         const get=nm=>{const item=(fin.list||[]).find(x=>x.account_nm===nm);return item?Math.round(parseInt((item.thstrm_amount||"0").replace(/,/g,""))/100000000):null;};
-        const empNo = det?.status==="000" ? (parseInt((det.emp_no||"0").replace(/,/g,""))||null) : (c.employees||null);
-        const indNm = (c.industry_nm&&c.industry_nm!=="-") ? c.industry_nm : (det?.status==="000"&&det.induty_nm ? det.induty_nm : "-");
+        // 업종: corps-listed 우선 → DART induty_code로 IND_MAP 변환
+        const indNm = (c.industry_nm&&c.industry_nm!=="-")
+          ? c.industry_nm
+          : (det?.status==="000" ? getIndNm(det.induty_code) : "-");
+        // 임직원: empSttus API의 total_emplovyee 합산
+        let empNo = c.employees||null;
+        if(emp?.status==="000"&&emp.list?.length){
+          empNo=emp.list.reduce((s,r)=>s+(parseInt((r.tot_emp||r.total_emplovyee||"0").replace(/,/g,""))||0),0)||null;
+        }
         return{...c,
           industry_nm: indNm,
-          region:c.region||(det?.adres?det.adres.slice(0,2):"-"),
-          founded:c.founded||(det?.est_dt?det.est_dt.slice(0,4):"-"),
+          region:c.region||(det?.status==="000"&&det.adres?det.adres.slice(0,2):"-"),
+          founded:c.founded||(det?.status==="000"&&det.est_dt?det.est_dt.slice(0,4):"-"),
           employees: empNo,
-          homepage:c.homepage||det?.hm_url||"",
+          homepage:c.homepage||(det?.status==="000"?det.hm_url:""),
           revenue:get("매출액"),profit:get("영업이익"),assets:get("자산총계"),
         };
       }catch{return{...c};}
