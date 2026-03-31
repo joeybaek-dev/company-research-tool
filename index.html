@@ -465,18 +465,21 @@ async function doSearch(){
     const batch=targets.slice(i,i+5);
     const bRes=await Promise.all(batch.map(async c=>{
       try{
+        const needDetail = !c.employees || !c.industry_nm || c.industry_nm==="-";
         const[finRes,detRes]=await Promise.all([
           fetch(`${DART_API}?action=finance&corp_code=${c.corp_code}&bsns_year=${year}`),
-          c.industry_nm?Promise.resolve(null):fetch(`${DART_API}?action=company&corp_code=${c.corp_code}`)
+          needDetail?fetch(`${DART_API}?action=company&corp_code=${c.corp_code}`):Promise.resolve(null)
         ]);
         const fin=await finRes.json();
         const det=detRes?await detRes.json():null;
         const get=nm=>{const item=(fin.list||[]).find(x=>x.account_nm===nm);return item?Math.round(parseInt((item.thstrm_amount||"0").replace(/,/g,""))/100000000):null;};
+        const empNo = parseInt(det?.emp_no)||c.employees||null;
+        const indNm = (c.industry_nm&&c.industry_nm!=="-") ? c.industry_nm : (det?.induty_nm||"-");
         return{...c,
-          industry_nm:c.industry_nm||det?.induty_nm||"-",
+          industry_nm: indNm,
           region:c.region||(det?.adres?det.adres.slice(0,2):"-"),
           founded:c.founded||(det?.est_dt?det.est_dt.slice(0,4):"-"),
-          employees:c.employees||parseInt(det?.emp_no)||null,
+          employees: empNo,
           homepage:c.homepage||det?.hm_url||"",
           revenue:get("매출액"),profit:get("영업이익"),assets:get("자산총계"),
         };
