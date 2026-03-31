@@ -623,7 +623,7 @@ function loadToScoring(c){
   scoreChecks={};
   document.getElementById("s-company").value=c.name||"";
   document.getElementById("s-contact").value="";
-  document.getElementById("s-industry").value=c.industry_nm&&c.industry_nm!=="-"?c.industry_nm:"";
+  document.getElementById("s-industry").value=c.industry_nm&&c.industry_nm!=="-"?getCorpMajor(c.industry_nm):"";
   document.getElementById("s-employees").value=c.employees?c.employees.toLocaleString()+"명":"";
   document.getElementById("s-memo").value=`매출: ${fmt(c.revenue)} · 설립: ${c.founded||"-"}년 · ${c.region||""}`;
   document.getElementById("import-banner").style.display="flex";
