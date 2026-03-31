@@ -77,7 +77,19 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
 .chk-pts{font-size:12px;font-weight:600;min-width:28px;text-align:right}
 .import-bar{background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .lead-card{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #e2e8f0}
-.lead-card.A{border-left-color:#10b981}
+.lead-card .action-plan{background:#f8fafc;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:12px}
+.action-plan .ap-title{font-weight:700;margin-bottom:8px;font-size:13px}
+.ap-row{display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid #f1f5f9}
+.ap-row:last-child{border-bottom:none}
+.ap-day{font-size:11px;font-weight:700;min-width:52px;padding-top:1px}
+.ap-task{flex:1;font-size:12px;color:#334155}
+.ap-done{width:16px;height:16px;border-radius:4px;border:1.5px solid #cbd5e1;cursor:pointer;flex-shrink:0;accent-color:#1e40af}
+.followup-bar{display:flex;align-items:center;gap:10px;margin-top:8px;padding:8px 12px;border-radius:8px;font-size:12px}
+.dday-badge{font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;color:#fff}
+.email-box{margin-top:10px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px 14px;font-size:12px;position:relative}
+.email-box pre{white-space:pre-wrap;line-height:1.7;color:#0c4a6e;font-family:inherit}
+.copy-btn{position:absolute;top:8px;right:10px;background:#0ea5e9;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600}
+.email-loading{color:#64748b;font-size:12px;padding:8px 0}
 .lead-card.B{border-left-color:#f59e0b}
 .lead-card.C{border-left-color:#ef4444}
 .grade-stat{flex:1;min-width:90px;border-radius:10px;padding:12px 14px}
@@ -754,7 +766,13 @@ function renderLeads(){
     document.getElementById("lead-list").innerHTML=`<div class="empty"><div style="font-size:36px">📊</div><p style="margin-top:8px">${leadFilter==="전체"?"아직 스코어링된 리드가 없어요":leadFilter+" 리드가 없어요"}</p></div>`;
     return;
   }
-  document.getElementById("lead-list").innerHTML=filtered.map((l,idx)=>`
+  document.getElementById("lead-list").innerHTML=filtered.map((l)=>{
+    const realIdx=leadList.indexOf(l);
+    const plan=ACTION_PLANS[l.grade]||[];
+    const dday=getDday(l.date,l.grade);
+    const ddayColor=!dday?"#64748b":dday.diff<0?"#ef4444":dday.diff<=3?"#f59e0b":"#10b981";
+    const ddayText=!dday?"":dday.diff<0?`D+${Math.abs(dday.diff)} 기한 초과`:dday.diff===0?"D-Day":`D-${dday.diff}`;
+    return`
     <div class="lead-card ${l.grade.charAt(0)}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -763,16 +781,132 @@ function renderLeads(){
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <span style="font-size:22px;font-weight:800;color:${l.gradeColor}">${l.score}점</span>
-          <button onclick="deleteLead(${leadList.indexOf(l)})" style="background:none;border:none;font-size:18px;cursor:pointer;color:#94a3b8;line-height:1">×</button>
+          <button onclick="deleteLead(${realIdx})" style="background:none;border:none;font-size:18px;cursor:pointer;color:#94a3b8;line-height:1">×</button>
         </div>
       </div>
       <div style="display:flex;gap:12px;font-size:12px;color:#64748b;flex-wrap:wrap;margin-bottom:8px">
         ${l.contact?`<span>👤 ${l.contact}</span>`:""}${l.industry?`<span>🏢 ${l.industry}</span>`:""}${l.employees?`<span>👥 ${l.employees}</span>`:""}<span>📅 ${l.date}</span>
       </div>
-      <div style="font-size:12px;color:${l.gradeColor};background:${l.gradeBg};padding:7px 10px;border-radius:6px;line-height:1.6;border:1px solid ${l.gradeColor}30"><strong>권장 액션:</strong> ${l.action}</div>
-      ${l.memo?`<div style="font-size:12px;color:#64748b;margin-top:6px">📝 ${l.memo}</div>`:""}
+
+      <!-- 팔로업 D-day -->
+      ${dday?`<div class="followup-bar" style="background:${ddayColor}15;border:1px solid ${ddayColor}40">
+        <span class="dday-badge" style="background:${ddayColor}">${ddayText}</span>
+        <span style="color:#475569">최종 액션 목표일: <b>${dday.target}</b></span>
+      </div>`:""}
+
+      <!-- 액션 플랜 -->
+      <div class="action-plan">
+        <div class="ap-title" style="color:${l.gradeColor}">📋 액션 플랜</div>
+        ${plan.map((p,i)=>`
+          <div class="ap-row">
+            <input type="checkbox" class="ap-done" ${l.doneTasks&&l.doneTasks[i]?"checked":""} onchange="toggleTask(this,${realIdx},${i})"/>
+            <span class="ap-day" style="color:${l.gradeColor}">${p.day}</span>
+            <span class="ap-task" style="${l.doneTasks&&l.doneTasks[i]?"text-decoration:line-through;color:#94a3b8":""}">${p.task}</span>
+          </div>`).join("")}
+      </div>
+
+      <!-- 이메일 초안 -->
+      <div style="margin-top:10px">
+        <button onclick="generateEmail(leadList[${realIdx}], this, this.nextElementSibling)"
+          style="background:#0ea5e9;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">
+          ✉ 이메일 초안 생성
+        </button>
+        <div id="email-${realIdx}"></div>
+      </div>
+
+      ${l.memo?`<div style="font-size:12px;color:#64748b;margin-top:8px">📝 ${l.memo}</div>`:""}
       ${l.checks.length?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">${l.checks.map(c=>`<span style="font-size:11px;background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:10px;border:1px solid #e2e8f0">${c}</span>`).join("")}</div>`:""}
-    </div>`).join("");
+    </div>`}).join("");
+}
+
+/* ── 액션 플랜 정의 ── */
+const ACTION_PLANS={
+  "A등급":[
+    {day:"Day 0",task:"전화 첫 접촉 — HR담당자 직접 통화, 15분 미팅 제안"},
+    {day:"Day 1",task:"개인화 이메일 발송 — 기업명/업종 언급, 맞춤 제안"},
+    {day:"Day 3",task:"팔로업 콜 — 이메일 확인 여부 확인 및 상담 일정 확정"},
+    {day:"Day 5",task:"상담 진행 — 니즈 파악 후 24시간 내 제안서 발송 약속"},
+    {day:"Day 7",task:"맞춤 제안서 발송 — 유사 기업 도입 사례 첨부"},
+    {day:"Day 10",task:"이의 처리 미팅 — 미결 사항 해소 및 추가 자료 제공"},
+    {day:"Day 14",task:"계약 클로징 — 계약서 발송 및 시작일 확정"},
+  ],
+  "B등급":[
+    {day:"Week 1",task:"리마케팅 이메일 #1 — BEAT 데모 자료 발송"},
+    {day:"Week 2",task:"리마케팅 이메일 #2 — 유사 업종 도입 성공 사례 공유"},
+    {day:"Week 3",task:"리마케팅 이메일 #3 — 수출바우처 혜택 안내 (해당 시)"},
+    {day:"Week 4",task:"리마케팅 이메일 #4 — 개인화 콘텐츠 및 전화 전환 시도"},
+    {day:"Week 5",task:"관심 시그널 확인 후 전화 접촉 or B→A 등급 상향"},
+  ],
+  "C등급":[
+    {day:"즉시",task:"DB 정리 — 이탈 사유 메모 기록"},
+    {day:"1개월",task:"산업 트렌드 뉴스레터 등록 (선택)"},
+    {day:"6개월",task:"재검토 — 예산 시즌 맞춰 재접촉 시도"},
+  ],
+};
+
+function getDday(savedDate, grade){
+  const base=new Date(savedDate.replace(/\./g,"-").replace(/- /g,"-"));
+  if(isNaN(base))return null;
+  const days=grade==="A등급"?14:grade==="B등급"?35:180;
+  const target=new Date(base);target.setDate(target.getDate()+days);
+  const diff=Math.ceil((target-new Date())/(1000*60*60*24));
+  return {target:target.toLocaleDateString("ko-KR"),diff};
+}
+
+async function generateEmail(lead, btnEl, containerEl){
+  btnEl.disabled=true;btnEl.textContent="생성 중...";
+  containerEl.innerHTML=`<div class="email-loading">✦ Claude가 이메일을 작성하고 있어요...</div>`;
+  try{
+    const prompt=`당신은 민병철교육그룹 B2B 영업담당자입니다.
+아래 기업 정보를 바탕으로 HR 담당자에게 보낼 콜드 이메일 초안을 작성해주세요.
+
+기업명: ${lead.company}
+업종: ${lead.industry||"-"}
+임직원: ${lead.employees||"-"}
+등급: ${lead.grade}
+메모: ${lead.memo||"-"}
+
+조건:
+- 제목 포함
+- 200자 내외로 간결하게
+- 수출바우처 혜택 언급 (해당 업종이면)
+- 민병철교육의 강점: 45년 업력, AI+강사 결합, HR 관리 보드 제공
+- 자연스러운 한국어로 작성`;
+
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        messages:[{role:"user",content:prompt}]
+      })
+    });
+    const data=await res.json();
+    const text=data.content?.[0]?.text||"이메일 생성에 실패했어요.";
+    containerEl.innerHTML=`
+      <div class="email-box">
+        <button class="copy-btn" onclick="copyEmail(this)">복사</button>
+        <pre>${text}</pre>
+      </div>`;
+  }catch{
+    containerEl.innerHTML=`<div style="color:#ef4444;font-size:12px">이메일 생성 실패. 다시 시도해주세요.</div>`;
+  }
+  btnEl.disabled=false;btnEl.textContent="✉ 이메일 초안 재생성";
+}
+
+function copyEmail(btn){
+  const text=btn.nextElementSibling.textContent;
+  navigator.clipboard.writeText(text).then(()=>{btn.textContent="✓ 복사됨";setTimeout(()=>btn.textContent="복사",1500);});
+}
+
+function toggleTask(cb, leadIdx, taskIdx){
+  if(!leadList[leadIdx].doneTasks)leadList[leadIdx].doneTasks={};
+  leadList[leadIdx].doneTasks[taskIdx]=cb.checked;
+  localStorage.setItem("bcm_leads",JSON.stringify(leadList));
+  const label=cb.parentElement.querySelector(".ap-task");
+  if(label)label.style.textDecoration=cb.checked?"line-through":"none";
+  label.style.color=cb.checked?"#94a3b8":"#334155";
 }
 
 function setLeadFilter(filter){
