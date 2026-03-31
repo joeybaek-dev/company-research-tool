@@ -735,16 +735,26 @@ function saveLead(){
 }
 
 /* ── 리드 목록 ── */
+let leadFilter = "전체";
+
 function renderLeads(){
   const csvBtn=document.getElementById("btn-lead-csv");if(csvBtn)csvBtn.style.display=leadList.length?"inline-block":"none";
   document.getElementById("lead-stats").innerHTML=[
-    ["A등급 즉시접촉",leadList.filter(l=>l.grade==="A등급").length,"#0F6E56","#E1F5EE"],
-    ["B등급 육성",leadList.filter(l=>l.grade==="B등급").length,"#854F0B","#FAEEDA"],
-    ["C등급 보류",leadList.filter(l=>l.grade==="C등급").length,"#993C1D","#FAECE7"],
-    ["전체",leadList.length,"#1e40af","#eff6ff"],
-  ].map(([l,n,c,bg])=>`<div class="grade-stat" style="background:${bg};border:1px solid ${c}40"><div class="n" style="color:${c}">${n}</div><div class="l" style="color:${c}">${l}</div></div>`).join("");
-  if(!leadList.length){document.getElementById("lead-list").innerHTML=`<div class="empty"><div style="font-size:36px">📊</div><p style="margin-top:8px">아직 스코어링된 리드가 없어요</p></div>`;return;}
-  document.getElementById("lead-list").innerHTML=leadList.map((l,idx)=>`
+    ["A등급 즉시접촉",leadList.filter(l=>l.grade==="A등급").length,"#0F6E56","#E1F5EE","A등급"],
+    ["B등급 육성",leadList.filter(l=>l.grade==="B등급").length,"#854F0B","#FAEEDA","B등급"],
+    ["C등급 보류",leadList.filter(l=>l.grade==="C등급").length,"#993C1D","#FAECE7","C등급"],
+    ["전체",leadList.length,"#1e40af","#eff6ff","전체"],
+  ].map(([l,n,c,bg,key])=>`<div class="grade-stat" onclick="setLeadFilter('${key}')" style="background:${bg};border:${leadFilter===key?`2px solid ${c}`:`1px solid ${c}40`};cursor:pointer;transition:all .15s">
+    <div class="n" style="color:${c}">${n}</div>
+    <div class="l" style="color:${c};font-weight:${leadFilter===key?700:400}">${l}${leadFilter===key?' ✓':''}</div>
+  </div>`).join("");
+
+  const filtered = leadFilter==="전체" ? leadList : leadList.filter(l=>l.grade===leadFilter);
+  if(!filtered.length){
+    document.getElementById("lead-list").innerHTML=`<div class="empty"><div style="font-size:36px">📊</div><p style="margin-top:8px">${leadFilter==="전체"?"아직 스코어링된 리드가 없어요":leadFilter+" 리드가 없어요"}</p></div>`;
+    return;
+  }
+  document.getElementById("lead-list").innerHTML=filtered.map((l,idx)=>`
     <div class="lead-card ${l.grade.charAt(0)}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -753,7 +763,7 @@ function renderLeads(){
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <span style="font-size:22px;font-weight:800;color:${l.gradeColor}">${l.score}점</span>
-          <button onclick="deleteLead(${idx})" style="background:none;border:none;font-size:18px;cursor:pointer;color:#94a3b8;line-height:1">×</button>
+          <button onclick="deleteLead(${leadList.indexOf(l)})" style="background:none;border:none;font-size:18px;cursor:pointer;color:#94a3b8;line-height:1">×</button>
         </div>
       </div>
       <div style="display:flex;gap:12px;font-size:12px;color:#64748b;flex-wrap:wrap;margin-bottom:8px">
@@ -763,6 +773,11 @@ function renderLeads(){
       ${l.memo?`<div style="font-size:12px;color:#64748b;margin-top:6px">📝 ${l.memo}</div>`:""}
       ${l.checks.length?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">${l.checks.map(c=>`<span style="font-size:11px;background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:10px;border:1px solid #e2e8f0">${c}</span>`).join("")}</div>`:""}
     </div>`).join("");
+}
+
+function setLeadFilter(filter){
+  leadFilter=filter;
+  renderLeads();
 }
 function deleteLead(idx){leadList.splice(idx,1);localStorage.setItem("bcm_leads",JSON.stringify(leadList));document.getElementById("t4-cnt").textContent=`(${leadList.length})`;document.getElementById("hb-leads").textContent=`리드 ${leadList.length}건`;renderLeads();}
 function clrLeads(){if(!confirm("리드 목록을 전체 삭제할까요?"))return;leadList=[];localStorage.setItem("bcm_leads",JSON.stringify(leadList));document.getElementById("t4-cnt").textContent="(0)";document.getElementById("hb-leads").textContent="리드 0건";renderLeads();}
