@@ -963,6 +963,27 @@ const fmt=v=>{
 
 document.getElementById("kw").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch();});
 
+function buildMajorSelect(){
+  const majorSel = document.getElementById("find-major");
+  majorSel.innerHTML = '<option value="">전체</option>';
+  const foundMajors = new Set();
+  listedCorps.forEach(c => {
+    if(!c.industry_nm || c.industry_nm==="-") return;
+    for(const [major, codes] of Object.entries(MAJOR_MAP)){
+      if(codes.some(code => IND_MAP[code]===c.industry_nm)){
+        foundMajors.add(major); return;
+      }
+    }
+    foundMajors.add("기타");
+  });
+  [...Object.keys(MAJOR_MAP)].filter(m=>foundMajors.has(m)).forEach(m=>{
+    const o=document.createElement("option"); o.value=m; o.textContent=m; majorSel.appendChild(o);
+  });
+  if(foundMajors.has("기타")){
+    const o=document.createElement("option"); o.value="기타"; o.textContent="기타"; majorSel.appendChild(o);
+  }
+}
+
 function onMajorChange(){
   const major = document.getElementById("find-major").value;
   const sel = document.getElementById("find");
