@@ -466,31 +466,33 @@ async function doSearch(){
     const bRes=await Promise.all(batch.map(async c=>{
       try{
         const needDetail = !c.employees || !c.industry_nm || c.industry_nm==="-";
-        const[finRes,detRes,empRes]=await Promise.all([
-          fetch(`${DART_API}?action=finance&corp_code=${c.corp_code}&bsns_year=${year}`),
-          needDetail?fetch(`${DART_API}?action=company&corp_code=${c.corp_code}`):Promise.resolve(null),
-          needDetail?fetch(`${DART_API}?action=empstatus&corp_code=${c.corp_code}&bsns_year=${year}`):Promise.resolve(null),
+        // 각 API를 독립 호출 — 하나 실패해도 나머지에 영향 없음
+        const safeFetch = async (url) => {
+          try { const r=await fetch(url); return await r.json(); } catch { return null; }
+        };
+        const [fin, det, emp] = await Promise.all([
+          safeFetch(`${DART_API}?action=finance&corp_code=${c.corp_code}&bsns_year=${year}`),
+          needDetail ? safeFetch(`${DART_API}?action=company&corp_code=${c.corp_code}`) : null,
+          needDetail ? safeFetch(`${DART_API}?action=empstatus&corp_code=${c.corp_code}&bsns_year=${year}`) : null,
         ]);
-        const fin=await finRes.json();
-        const det=detRes?await detRes.json():null;
-        const emp=empRes?await empRes.json():null;
-        const get=nm=>{const item=(fin.list||[]).find(x=>x.account_nm===nm);return item?Math.round(parseInt((item.thstrm_amount||"0").replace(/,/g,""))/100000000):null;};
-        // 업종: corps-listed 우선 → DART induty_code로 IND_MAP 변환
+        const get=nm=>{const item=((fin||{}).list||[]).find(x=>x.account_nm===nm);return item?Math.round(parseInt((item.thstrm_amount||"0").replace(/,/g,""))/100000000):null;};
+        // 업종: corps-listed 우선 → DART induty_code → IND_MAP 변환
         const indNm = (c.industry_nm&&c.industry_nm!=="-")
           ? c.industry_nm
           : (det?.status==="000" ? getIndNm(det.induty_code) : "-");
-        // 임직원: empSttus API의 total_emplovyee 합산
+        // 임직원: empSttus API 우선 → 기존값 fallback
         let empNo = c.employees||null;
         if(emp?.status==="000"&&emp.list?.length){
-          empNo=emp.list.reduce((s,r)=>s+(parseInt((r.tot_emp||r.total_emplovyee||"0").replace(/,/g,""))||0),0)||null;
+          const total=emp.list.reduce((s,r)=>s+(parseInt((r.tot_emp||r.total_emplovyee||"0").replace(/,/g,""))||0),0);
+          if(total>0) empNo=total;
         }
         return{...c,
           industry_nm: indNm,
-          region:c.region||(det?.status==="000"&&det.adres?det.adres.slice(0,2):"-"),
-          founded:c.founded||(det?.status==="000"&&det.est_dt?det.est_dt.slice(0,4):"-"),
+          region: c.region||(det?.status==="000"&&det.adres?det.adres.slice(0,2):"-"),
+          founded: c.founded||(det?.status==="000"&&det.est_dt?det.est_dt.slice(0,4):"-"),
           employees: empNo,
-          homepage:c.homepage||(det?.status==="000"?det.hm_url:""),
-          revenue:get("매출액"),profit:get("영업이익"),assets:get("자산총계"),
+          homepage: c.homepage||(det?.status==="000"?det.hm_url||"":""),
+          revenue:get("매출액"), profit:get("영업이익"), assets:get("자산총계"),
         };
       }catch{return{...c};}
     }));
