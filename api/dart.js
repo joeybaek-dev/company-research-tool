@@ -57,3 +57,12 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: e.message });
   }
 }
+// ── 5. 임직원 현황 조회 ────────────────────────────────
+if (action === "empstatus") {
+  const year = bsns_year || String(new Date().getFullYear() - 1);
+  const r = await fetch(
+    `${DART_BASE}/empSttus.json?crtfc_key=${DART_KEY}` +
+    `&corp_code=${corp_code}&bsns_year=${year}&reprt_code=11011`
+  );
+  return res.status(200).json(await r.json());
+}
