@@ -1004,7 +1004,9 @@ function onMajorChange(){
 }
 
 // 초기화
-initCorps();
+initCorps().then(() => {
+  buildMajorSelect();
+});
 renderChecklist();
 // 헤더 카운터 초기화
 document.getElementById("t2-cnt").textContent=`(${saved.length})`;
