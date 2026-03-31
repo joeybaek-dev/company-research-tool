@@ -141,7 +141,10 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
     <div class="card">
       <input type="text" class="si" id="kw" placeholder="🔍 기업명 검색 (비워두면 필터 조건으로만 검색)"/>
       <div class="fr">
-        <div class="fi"><label>업종 (상장사만)</label>
+        <div class="fi"><label>업종 대분류</label>
+          <select id="find-major" onchange="onMajorChange()"><option value="">전체</option></select>
+        </div>
+        <div class="fi"><label>업종 세분류</label>
           <select id="find"><option value="">전체</option></select>
         </div>
         <div class="fi"><label>상장 여부</label>
@@ -930,6 +933,25 @@ const fmt=v=>{
 };
 
 document.getElementById("kw").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch();});
+
+function onMajorChange(){
+  const major = document.getElementById("find-major").value;
+  const sel = document.getElementById("find");
+  sel.innerHTML = '<option value="">전체</option>';
+  if(!major){ // 대분류 전체 → 세분류 전체 복원
+    const inds=[...new Set(listedCorps.map(c=>c.industry_nm).filter(i=>i&&i!=="-"))].sort();
+    inds.forEach(ind=>{const o=document.createElement("option");o.value=ind;o.textContent=ind;sel.appendChild(o);});
+    return;
+  }
+  // 선택된 대분류에 속하는 세분류만
+  const codes = MAJOR_MAP[major]||[];
+  const filtered = listedCorps
+    .filter(c=>c.industry_nm&&c.industry_nm!=="-"&&codes.some(code=>IND_MAP[code]===c.industry_nm))
+    .map(c=>c.industry_nm);
+  [...new Set(filtered)].sort().forEach(ind=>{
+    const o=document.createElement("option");o.value=ind;o.textContent=ind;sel.appendChild(o);
+  });
+}
 
 // 초기화
 initCorps();
