@@ -134,6 +134,7 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <button class="btn bp" id="btn-search" onclick="doSearch()">🔍 검색하기</button>
+        <button class="btn bg bs" onclick="resetSearch()">↺ 초기화</button>
         <button class="btn bg bs" id="btn-stop" style="display:none" onclick="stopSearch()">⏹ 중단</button>
         <span id="search-status" style="font-size:12px;color:#64748b"></span>
       </div>
@@ -476,6 +477,20 @@ async function doSearch(){
     return a.name.localeCompare(b.name,"ko");
   });
   endSearch();setStatus(`✅ ${results.length}개 기업 조회 완료`);draw();
+}
+
+function resetSearch(){
+  document.getElementById("kw").value="";
+  document.getElementById("find-major").value="";
+  onMajorChange();
+  document.getElementById("fl").value="";
+  document.getElementById("fs").value="revenue_desc";
+  document.getElementById("rc").innerHTML=`<span style="color:#64748b">기업명 또는 필터를 선택 후 검색하세요</span>`;
+  document.getElementById("cl").innerHTML="";
+  document.getElementById("pg").innerHTML="";
+  document.getElementById("bulk-bar").style.display="none";
+  document.getElementById("search-status").textContent="";
+  results=[];filtered=[];page=1;chk.clear();allSel=false;
 }
 
 function stopSearch(){stopFlag=true;endSearch();setStatus("⏹ 중단됨");draw();}
