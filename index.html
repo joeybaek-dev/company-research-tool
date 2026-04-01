@@ -531,6 +531,7 @@ function draw(){
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <span style="font-weight:800;font-size:15px;color:#0f172a">${c.name}</span>
             ${c.listed?`<span class="tag" style="background:#eff6ff;color:#1d4ed8">📈 상장</span>`:`<span class="tag" style="background:#f1f5f9;color:#64748b">비상장</span>`}
+            ${!c.listed&&c.revenue==null?`<span class="tag" style="background:#fef9c3;color:#854d0e">재무정보 미공시</span>`:""}
             ${c.region&&c.region!=="-"?`<span class="tag" style="background:#f8fafc;color:#64748b">${c.region}</span>`:""}
             ${c.industry_nm&&c.industry_nm!=="-"?`<span class="tag" style="background:#e0e7ff;color:#3730a3">${getCorpMajor(c.industry_nm)}</span>`:""}
             ${sv?`<span class="tag" style="background:#dcfce7;color:#15803d">✓ 저장</span>`:""}
