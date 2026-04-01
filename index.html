@@ -475,7 +475,13 @@ async function doSearch(){
           if(total>0)empNo=total;
         }
       }catch{}
-      return{...c,industry_nm:indNm,region:c.region||(det?.status==="000"&&det.adres?det.adres.slice(0,2):"-"),founded:c.founded||(det?.status==="000"&&det.est_dt?det.est_dt.slice(0,4):"-"),employees:empNo,homepage:c.homepage||(det?.status==="000"?det.hm_url||"":""),revenue:get("매출액"),profit:get("영업이익"),assets:get("자산총계")};
+              return{...c,industry_nm:indNm,
+          region:c.region||(det?.status==="000"&&det.adres?det.adres.slice(0,2):"-"),
+          founded:c.founded||(det?.status==="000"&&det.est_dt?det.est_dt.slice(0,4):"-"),
+          ceo:c.ceo||(det?.status==="000"?det.ceo_nm||"":"-"),
+          employees:empNo,
+          homepage:c.homepage||(det?.status==="000"?det.hm_url||"":""),
+          revenue:get("매출액"),profit:get("영업이익"),assets:get("자산총계")};
     }));
     results.push(...bRes);done+=batch.length;
     setStatus(`재무정보 조회 중... (${done}/${Math.min(targets.length,50)})`);
