@@ -536,7 +536,8 @@ function draw(){
             ${sv?`<span class="tag" style="background:#dcfce7;color:#15803d">✓ 저장</span>`:""}
             ${isScored?`<span class="tag" style="background:#f5f3ff;color:#7c3aed">✅ 스코어링됨</span>`:""}
           </div>
-          <div style="font-size:12px;color:#64748b;margin-top:3px">설립 ${c.founded||"-"}년${c.homepage?` · <a href="${c.homepage.match(/^https?:\/\//)?c.homepage:'https://'+c.homepage.replace(/^\/+/,'')}" target="_blank" style="color:#1e40af">홈페이지↗</a>`:""}</div>
+          <div style="font-size:12px;color:#64748b;margin-top:3px">
+            ${c.ceo?`👤 ${c.ceo} · `:""}설립 ${c.founded||"-"}년${c.homepage?` · <a href="${c.homepage.match(/^https?:\/\//)?c.homepage:'https://'+c.homepage.replace(/^\/+/,'')}" target="_blank" style="color:#1e40af">홈페이지↗</a>`:""}</div>
           <div class="mt">
             <div><div class="l">매출</div><div class="v" style="color:#f59e0b">${fmt(c.revenue)}</div></div>
             <div><div class="l">영업이익</div><div class="v" style="color:${(c.profit||0)>=0?"#10b981":"#ef4444"}">${fmt(c.profit)}</div></div>
