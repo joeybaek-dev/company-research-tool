@@ -187,8 +187,8 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
       </div>
 
       <div style="display:flex;gap:8px;margin-top:18px">
-        <button onclick="saveManual()" style="flex:1;padding:11px;background:#1e40af;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">저장 리스트에 추가</button>
-        <button onclick="saveManualAndScore()" style="flex:1;padding:11px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">저장 + 스코어링 바로가기</button>
+        <button onclick="saveManual()" style="flex:1;padding:11px;background:#1e40af;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">검색 목록에 추가</button>
+        <button onclick="saveManualAndScore()" style="flex:1;padding:11px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">추가 + 스코어링 바로가기</button>
       </div>
     </div>
   </div>
@@ -613,15 +613,19 @@ function buildManualCorp(){
 
 function saveManual(){
   const corp=buildManualCorp();if(!corp)return;
-  if(!saved.some(s=>s.id===corp.id)){saved.push(corp);svSaved();}
+  // 검색 결과(results)에 추가 후 검색 탭에 표시
+  results.unshift(corp);
+  filtered.unshift(corp);
   closeModal();
-  switchTab("saved");
-  alert(`✅ "${corp.name}" 저장 완료!`);
+  switchTab("search");
+  draw();
+  alert(`✅ "${corp.name}" 검색 목록에 추가됐습니다!\n저장하려면 카드의 + 저장 버튼을 눌러주세요.`);
 }
 
 function saveManualAndScore(){
   const corp=buildManualCorp();if(!corp)return;
-  if(!saved.some(s=>s.id===corp.id)){saved.push(corp);svSaved();}
+  results.unshift(corp);
+  filtered.unshift(corp);
   closeModal();
   loadToScoring(corp);
 }
