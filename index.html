@@ -317,11 +317,11 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
 </div>
 
 <script>
+const DART_API="/api/dart", CORPS_JSON="/corps.json", CORPS_LISTED_JSON="/corps-listed.json", PS=20;
+
 const SUPABASE_URL = "https://fosabvquojtxpvrhcufw.supabase.co";
 const SUPABASE_KEY = "sb_publishable_6ms4oChTja-DwRkQPg9wag_A6VfS15X";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-/* ── Supabase 동기화 함수 ── */
 async function dbLoad(table){
   try{
     const {data,error}=await sb.from(table).select("*").order("created_at",{ascending:true});
