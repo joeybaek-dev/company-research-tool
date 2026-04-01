@@ -909,7 +909,22 @@ function saveLead(){
   if(!company)return alert("기업명을 입력해주세요.");
   const score=calcScore(),grade=getGrade(score);
   const checkedLabels=CRITERIA.flatMap(c=>c.items).filter(i=>scoreChecks[i.id]).map(i=>i.label);
-  const lead={id:Date.now().toString(),company,contact:document.getElementById("s-contact").value.trim(),industry:document.getElementById("s-industry").value.trim(),employees:document.getElementById("s-employees").value.trim(),memo:document.getElementById("s-memo").value.trim(),score,grade:grade.label,gradeColor:grade.color,gradeBg:grade.bg,action:grade.action,checks:checkedLabels,date:new Date().toLocaleDateString("ko-KR")};
+  // 스코어링 탭에 loadToScoring으로 불러온 기업 정보 참조
+  const srcCorp = [...results, ...manualCorps, ...saved].find(c => c.name === company);
+  const lead={
+    id:Date.now().toString(),
+    company,
+    contact:document.getElementById("s-contact").value.trim(),
+    phone: srcCorp?.phone||"",
+    email: srcCorp?.email||"",
+    source: srcCorp?.source||"",
+    industry:document.getElementById("s-industry").value.trim(),
+    employees:document.getElementById("s-employees").value.trim(),
+    memo:document.getElementById("s-memo").value.trim(),
+    score,grade:grade.label,gradeColor:grade.color,gradeBg:grade.bg,
+    action:grade.action,checks:checkedLabels,
+    date:new Date().toLocaleDateString("ko-KR"),
+  };
   leadList.unshift(lead);localStorage.setItem("bcm_leads",JSON.stringify(leadList));
   document.getElementById("t4-cnt").textContent=`(${leadList.length})`;
   document.getElementById("hb-leads").textContent=`리드 ${leadList.length}건`;
