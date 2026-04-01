@@ -313,6 +313,7 @@ let page=1,chk=new Set(),allSel=false,stopFlag=false,corpsLoaded=false;
 const nc={},dop=new Set();
 let saved=JSON.parse(localStorage.getItem("cr4")||"[]");
 let leadList=JSON.parse(localStorage.getItem("bcm_leads")||"[]");
+let manualCorps=JSON.parse(localStorage.getItem("bcm_manual")||"[]"); // 직접 등록 기업
 let scoreChecks={};
 
 /* ── 스코어링 정의 ── */
@@ -516,7 +517,16 @@ async function doSearch(){
     }).map(c=>{const d=listedCorps.find(l=>l.corp_code===c.corp_code);return d?{...c,...d}:c;});
   }
 
-  filtered=pool;
+  // 직접 등록 기업 검색에 포함
+  const manualMatched = manualCorps.filter(c => {
+    if(kw && !c.name.includes(kw)) return false;
+    if(major && c.industry_nm !== major) return false;
+    if(ind && c.industry_nm !== ind) return false;
+    if(lst === "Y") return false; // 직접 등록은 비상장
+    return true;
+  });
+
+  filtered = [...manualMatched, ...pool];
   setStatus(`${filtered.length.toLocaleString()}개 기업 발견 → 재무정보 조회 중...`);
   document.getElementById("rc").innerHTML=`총 <b style="color:#1e40af">${filtered.length.toLocaleString()}</b>개 기업`;
   if(!filtered.length){
@@ -524,7 +534,10 @@ async function doSearch(){
     endSearch();return;
   }
 
-  const targets=filtered.slice(0,50);
+  // 직접 등록 기업은 재무 조회 없이 그대로 results에 추가
+  results.push(...manualMatched);
+
+  const targets=filtered.filter(c=>!c.manual).slice(0,50);
   const year=String(new Date().getFullYear()-1);
   let done=0;
   for(let i=0;i<targets.length;i+=5){
@@ -627,17 +640,22 @@ function buildManualCorp(){
 
 function saveManual(){
   const corp=buildManualCorp();if(!corp)return;
-  // 검색 결과(results)에 추가 후 검색 탭에 표시
+  // 직접 등록 DB에 저장 (새로고침 후에도 유지)
+  manualCorps.unshift(corp);
+  localStorage.setItem("bcm_manual",JSON.stringify(manualCorps));
+  // 검색 결과에도 즉시 반영
   results.unshift(corp);
   filtered.unshift(corp);
   closeModal();
   switchTab("search");
   draw();
-  alert(`✅ "${corp.name}" 검색 목록에 추가됐습니다!\n저장하려면 카드의 + 저장 버튼을 눌러주세요.`);
+  alert(`✅ "${corp.name}" 등록 완료!\n검색 목록 맨 위에 추가됐습니다.`);
 }
 
 function saveManualAndScore(){
   const corp=buildManualCorp();if(!corp)return;
+  manualCorps.unshift(corp);
+  localStorage.setItem("bcm_manual",JSON.stringify(manualCorps));
   results.unshift(corp);
   filtered.unshift(corp);
   closeModal();
