@@ -698,7 +698,7 @@ function draw(){
             ${c.listed?`<span class="tag" style="background:#eff6ff;color:#1d4ed8">📈 상장</span>`:`<span class="tag" style="background:#f1f5f9;color:#64748b">비상장</span>`}
             ${!c.listed&&c.revenue==null?`<span class="tag" style="background:#fef9c3;color:#854d0e">재무정보 미공시</span>`:""}
             ${c.region&&c.region!=="-"?`<span class="tag" style="background:#f8fafc;color:#64748b">${c.region}</span>`:""}
-            ${c.industry_nm&&c.industry_nm!=="-"?`<span class="tag" style="background:#e0e7ff;color:#3730a3">${getCorpMajor(c.industry_nm)}</span>`:""}
+            ${c.industry_nm&&c.industry_nm!=="-"?`<span class="tag" style="background:#e0e7ff;color:#3730a3">${c.manual?c.industry_nm:getCorpMajor(c.industry_nm)}</span>`:""}
             ${sv?`<span class="tag" style="background:#dcfce7;color:#15803d">✓ 저장</span>`:""}
             ${isScored?`<span class="tag" style="background:#f5f3ff;color:#7c3aed">✅ 스코어링됨</span>`:""}
           </div>
@@ -718,7 +718,7 @@ function draw(){
       </div>
       <div id="DD${c.id}" style="display:${op?"block":"none"}">
         <div class="di"><div style="display:flex;gap:14px;flex-wrap:wrap;color:#1e293b">
-          <span><span style="color:#94a3b8">업종: </span>${getCorpMajor(c.industry_nm)} (${c.industry_nm||"-"})</span>
+          <span><span style="color:#94a3b8">업종: </span>${c.manual?c.industry_nm:getCorpMajor(c.industry_nm)} ${!c.manual&&c.industry_nm!=="-"?`(${c.industry_nm})`:""}</span>
           <span><span style="color:#94a3b8">지역: </span>${c.region||"-"}</span>
           <span><span style="color:#94a3b8">설립: </span>${c.founded||"-"}년</span>
           <span><span style="color:#94a3b8">DART코드: </span>${c.corp_code}</span>
