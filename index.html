@@ -147,13 +147,11 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
         <div class="modal-field"><label>지역</label>
           <select id="m-region">
             <option value="">선택</option>
-            ${["서울","경기","인천","부산","대구","광주","대전","울산","세종","강원","충청","전라","경상","제주"].map(r=>`<option value="${r}">${r}</option>`).join("")}
           </select>
         </div>
         <div class="modal-field"><label>업종 대분류</label>
           <select id="m-major">
             <option value="">선택</option>
-            ${Object.keys(MAJOR_MAP).map(m=>`<option value="${m}">${m}</option>`).join("")}
           </select>
         </div>
         <div class="modal-field"><label>홈페이지</label><input id="m-homepage" placeholder="예) www.example.com"/></div>
@@ -573,7 +571,23 @@ async function doSearch(){
 }
 
 /* ── 직접 등록 ── */
-function openModal(){document.getElementById("manual-modal").style.display="flex";}
+function openModal(){
+  // 지역 드롭다운 채우기
+  const regionSel=document.getElementById("m-region");
+  if(regionSel.options.length<=1){
+    ["서울","경기","인천","부산","대구","광주","대전","울산","세종","강원","충청","전라","경상","제주"].forEach(r=>{
+      const o=document.createElement("option");o.value=r;o.textContent=r;regionSel.appendChild(o);
+    });
+  }
+  // 업종 대분류 드롭다운 채우기
+  const majorSel=document.getElementById("m-major");
+  if(majorSel.options.length<=1){
+    Object.keys(MAJOR_MAP).forEach(m=>{
+      const o=document.createElement("option");o.value=m;o.textContent=m;majorSel.appendChild(o);
+    });
+  }
+  document.getElementById("manual-modal").style.display="flex";
+}
 function closeModal(){
   document.getElementById("manual-modal").style.display="none";
   ["m-name","m-ceo","m-founded","m-homepage","m-employees","m-revenue","m-profit","m-assets","m-contact","m-phone","m-email","m-memo"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
