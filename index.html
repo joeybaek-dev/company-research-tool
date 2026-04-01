@@ -857,7 +857,11 @@ function drwSaved(){
     </div></div>`;
   }).join("");
 }
-function rmSv(id){saved=saved.filter(c=>c.id!==id);svSaved();drwSaved();}
+function rmSv(id){
+  const c=saved.find(s=>s.id===id);
+  if(!confirm(`"${c?.name}" 을 저장 리스트에서 삭제할까요?`))return;
+  saved=saved.filter(c=>c.id!==id);svSaved();drwSaved();
+}
 function clrAll(){if(confirm("전체 삭제할까요?")){saved=[];svSaved();drwSaved();}}
 function expCSV(){
   const rows=[["기업명","업종","지역","상장","매출(억)","영업이익(억)","자산(억)","임직원","설립연도","DART코드"]];
@@ -1112,7 +1116,14 @@ function setLeadFilter(filter){
   leadFilter=filter;
   renderLeads();
 }
-function deleteLead(idx){leadList.splice(idx,1);localStorage.setItem("bcm_leads",JSON.stringify(leadList));document.getElementById("t4-cnt").textContent=`(${leadList.length})`;document.getElementById("hb-leads").textContent=`리드 ${leadList.length}건`;renderLeads();}
+function deleteLead(idx){
+  if(!confirm(`"${leadList[idx]?.company}" 을 리드 목록에서 삭제할까요?`))return;
+  leadList.splice(idx,1);
+  localStorage.setItem("bcm_leads",JSON.stringify(leadList));
+  document.getElementById("t4-cnt").textContent=`(${leadList.length})`;
+  document.getElementById("hb-leads").textContent=`리드 ${leadList.length}건`;
+  renderLeads();
+}
 function clrLeads(){if(!confirm("리드 목록을 전체 삭제할까요?"))return;leadList=[];localStorage.setItem("bcm_leads",JSON.stringify(leadList));document.getElementById("t4-cnt").textContent="(0)";document.getElementById("hb-leads").textContent="리드 0건";renderLeads();}
 function expLeadCSV(){
   const allChkLabels=CRITERIA.flatMap(c=>c.items.map(i=>i.label));
