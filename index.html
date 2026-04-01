@@ -106,6 +106,7 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
 .grade-stat{flex:1;min-width:90px;border-radius:10px;padding:12px 14px}
 @media(max-width:640px){.score-header{grid-template-columns:1fr}.score-live{position:static}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -316,7 +317,39 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
 </div>
 
 <script>
-const DART_API="/api/dart", CORPS_JSON="/corps.json", CORPS_LISTED_JSON="/corps-listed.json", PS=20;
+const SUPABASE_URL = "https://fosabvquojtxpvrhcufw.supabase.co";
+const SUPABASE_KEY = "sb_publishable_6ms4oChTja-DwRkQPg9wag_A6VfS15X";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ── Supabase 동기화 함수 ── */
+async function dbLoad(table){
+  try{
+    const {data,error}=await sb.from(table).select("*").order("created_at",{ascending:true});
+    if(error)throw error;
+    return data.map(r=>r.data);
+  }catch(e){console.error(`${table} load error:`,e);return null;}
+}
+
+async function dbUpsert(table, item){
+  try{
+    const {error}=await sb.from(table).upsert({id:item.id, data:item},{onConflict:"id"});
+    if(error)throw error;
+  }catch(e){console.error(`${table} upsert error:`,e);}
+}
+
+async function dbDelete(table, id){
+  try{
+    const {error}=await sb.from(table).delete().eq("id",id);
+    if(error)throw error;
+  }catch(e){console.error(`${table} delete error:`,e);}
+}
+
+async function dbClear(table){
+  try{
+    const {error}=await sb.from(table).delete().neq("id","__never__");
+    if(error)throw error;
+  }catch(e){console.error(`${table} clear error:`,e);}
+}
 let allCorps=[],listedCorps=[],filtered=[],results=[];
 let page=1,chk=new Set(),allSel=false,stopFlag=false,corpsLoaded=false;
 const nc={},dop=new Set();
@@ -795,13 +828,31 @@ function updBB(){
 }
 function saveSel(){
   const ts=allSel?results:results.filter(c=>chk.has(c.id));
-  let n=0;ts.forEach(c=>{if(!saved.some(s=>s.id===c.id)){saved.push(c);n++;}});
+  let n=0;
+  ts.forEach(c=>{
+    if(!saved.some(s=>s.id===c.id)){
+      saved.push(c);
+      svSavedDB(c);
+      n++;
+    }
+  });
   svSaved();draw();alert(`✅ ${n}개 저장 (전체 ${saved.length}개)`);
 }
 function svSaved(){
   localStorage.setItem("cr4",JSON.stringify(saved));
   document.getElementById("t2-cnt").textContent=`(${saved.length})`;
   document.getElementById("hb-saved").textContent=`저장 ${saved.length}개`;
+}
+
+async function svSavedDB(item){
+  svSaved();
+  await dbUpsert("saved_corps", item);
+}
+
+async function rmSvDB(id){
+  saved=saved.filter(c=>c.id!==id);
+  svSaved();
+  await dbDelete("saved_corps", id);
 }
 
 function sendToScore(id){const c=results.find(x=>x.id===id);if(c)loadToScoring(c);}
@@ -939,7 +990,9 @@ function saveLead(){
     action:grade.action,checks:checkedLabels,
     date:new Date().toLocaleDateString("ko-KR"),
   };
-  leadList.unshift(lead);localStorage.setItem("bcm_leads",JSON.stringify(leadList));
+  leadList.unshift(lead);
+  localStorage.setItem("bcm_leads",JSON.stringify(leadList));
+  dbUpsert("leads", lead);
   document.getElementById("t4-cnt").textContent=`(${leadList.length})`;
   document.getElementById("hb-leads").textContent=`리드 ${leadList.length}건`;
   scoreChecks={};
@@ -1138,12 +1191,36 @@ const fmt=v=>{if(v==null)return"-";if(Math.abs(v)>=10000)return`${(v/10000).toFi
 
 document.getElementById("kw").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch();});
 
+// 초기화 — Supabase에서 데이터 로드
+async function initData(){
+  // 직접 등록 기업
+  const mc=await dbLoad("manual_corps");
+  if(mc&&mc.length){
+    manualCorps=mc;
+    localStorage.setItem("bcm_manual",JSON.stringify(manualCorps));
+  }
+  // 저장 리스트
+  const sc=await dbLoad("saved_corps");
+  if(sc&&sc.length){
+    saved=sc;
+    localStorage.setItem("cr4",JSON.stringify(saved));
+  }
+  // 리드 목록
+  const ld=await dbLoad("leads");
+  if(ld&&ld.length){
+    leadList=ld.reverse(); // 최신순
+    localStorage.setItem("bcm_leads",JSON.stringify(leadList));
+  }
+  // 카운터 업데이트
+  document.getElementById("t2-cnt").textContent=`(${saved.length})`;
+  document.getElementById("t4-cnt").textContent=`(${leadList.length})`;
+  document.getElementById("hb-saved").textContent=`저장 ${saved.length}개`;
+  document.getElementById("hb-leads").textContent=`리드 ${leadList.length}건`;
+}
+
 initCorps().then(()=>{buildMajorSelect();});
+initData();
 renderChecklist();
-document.getElementById("t2-cnt").textContent=`(${saved.length})`;
-document.getElementById("t4-cnt").textContent=`(${leadList.length})`;
-document.getElementById("hb-saved").textContent=`저장 ${saved.length}개`;
-document.getElementById("hb-leads").textContent=`리드 ${leadList.length}건`;
 </script>
 </body>
 </html>
