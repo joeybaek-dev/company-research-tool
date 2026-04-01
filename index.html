@@ -614,11 +614,6 @@ function buildManualCorp(){
   const profit=parseInt(document.getElementById("m-profit").value)||null;
   const assets=parseInt(document.getElementById("m-assets").value)||null;
   const employees=parseInt(document.getElementById("m-employees").value)||null;
-  const contact=document.getElementById("m-contact").value.trim();
-  const phone=document.getElementById("m-phone").value.trim();
-  const email=document.getElementById("m-email").value.trim();
-  const source=document.getElementById("m-source").value;
-  const memo=[contact&&`담당자: ${contact}`,phone&&`연락처: ${phone}`,email&&`이메일: ${email}`,source&&`소개경로: ${source}`].filter(Boolean).join(" · ");
   return{
     id:"manual_"+Date.now(),
     corp_code:"manual_"+Date.now(),
@@ -631,9 +626,8 @@ function buildManualCorp(){
     industry_nm:document.getElementById("m-major").value,
     homepage:document.getElementById("m-homepage").value.trim(),
     employees,revenue,profit,assets,
-    contact,phone,email,
-    source,
-    memo:document.getElementById("m-memo").value.trim()||(memo||""),
+    contact,phone,email,source,
+    memo:document.getElementById("m-memo").value.trim(),
     registeredAt:new Date().toLocaleDateString("ko-KR"),
   };
 }
@@ -703,7 +697,12 @@ function draw(){
             ${isScored?`<span class="tag" style="background:#f5f3ff;color:#7c3aed">✅ 스코어링됨</span>`:""}
           </div>
           <div style="font-size:12px;color:#64748b;margin-top:3px">
-            ${c.ceo?`👤 ${c.ceo} · `:""}설립 ${c.founded||"-"}년${c.homepage?` · <a href="${c.homepage.match(/^https?:\/\//)?c.homepage:'https://'+c.homepage.replace(/^\/+/,'')}" target="_blank" style="color:#1e40af">홈페이지↗</a>`:""}</div>
+            ${c.ceo?`👤 ${c.ceo} · `:""}설립 ${c.founded||"-"}년${c.homepage?` · <a href="${c.homepage.match(/^https?:\/\//)?c.homepage:'https://'+c.homepage.replace(/^\/+/,'')}" target="_blank" style="color:#1e40af">홈페이지↗</a>`:""}
+          </div>
+          ${c.manual&&(c.contact||c.phone||c.email)?`<div style="font-size:12px;color:#7c3aed;margin-top:3px">
+            ${c.contact?`👤 ${c.contact}`:""}${c.phone?` · 📞 ${c.phone}`:""}${c.email?` · ✉ ${c.email}`:""}${c.source?` · 📌 ${c.source}`:""}
+          </div>`:""}
+        
           <div class="mt">
             <div><div class="l">매출</div><div class="v" style="color:#f59e0b">${fmt(c.revenue)}</div></div>
             <div><div class="l">영업이익</div><div class="v" style="color:${(c.profit||0)>=0?"#10b981":"#ef4444"}">${fmt(c.profit)}</div></div>
@@ -807,8 +806,8 @@ function scoreAllSaved(){if(!saved.length)return alert("저장된 기업이 없�
 function loadToScoring(c){
   scoreChecks={};
   document.getElementById("s-company").value=c.name||"";
-  document.getElementById("s-contact").value="";
-  document.getElementById("s-industry").value=c.industry_nm&&c.industry_nm!=="-"?getCorpMajor(c.industry_nm):"";
+  document.getElementById("s-contact").value=c.contact||"";
+  document.getElementById("s-industry").value=c.manual?c.industry_nm:(c.industry_nm&&c.industry_nm!=="-"?getCorpMajor(c.industry_nm):"");
   document.getElementById("s-employees").value=c.employees?c.employees.toLocaleString()+"명":"";
   document.getElementById("s-memo").value=`매출: ${fmt(c.revenue)} · 설립: ${c.founded||"-"}년 · ${c.region||""}`;
   document.getElementById("import-banner").style.display="flex";
