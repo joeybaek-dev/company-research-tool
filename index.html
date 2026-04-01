@@ -267,6 +267,15 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
         <div style="display:flex;flex-direction:column;gap:8px">
           <div><div style="font-size:11px;color:#94a3b8;margin-bottom:3px">기업명 *</div><input id="s-company" style="width:100%" placeholder="예) (주)한국무역"/></div>
           <div><div style="font-size:11px;color:#94a3b8;margin-bottom:3px">담당자명</div><input id="s-contact" style="width:100%" placeholder="예) 김민지 팀장"/></div>
+          <div><div style="font-size:11px;color:#94a3b8;margin-bottom:3px">담당자 연락처</div><input id="s-phone" style="width:100%" placeholder="예) 010-1234-5678"/></div>
+          <div><div style="font-size:11px;color:#94a3b8;margin-bottom:3px">담당자 이메일</div><input id="s-email" style="width:100%" placeholder="예) kim@company.com"/></div>
+          <div><div style="font-size:11px;color:#94a3b8;margin-bottom:3px">소개 경로</div>
+            <select id="s-source" style="width:100%">
+              <option value="">선택</option>
+              <option>콜드세일즈</option><option>인바운드</option><option>지인 소개</option>
+              <option>이메일 답장</option><option>전시/행사</option><option>기타</option>
+            </select>
+          </div>
           <div><div style="font-size:11px;color:#94a3b8;margin-bottom:3px">업종</div><input id="s-industry" style="width:100%" placeholder="예) 제조/수출"/></div>
           <div><div style="font-size:11px;color:#94a3b8;margin-bottom:3px">임직원 수</div><input id="s-employees" style="width:100%" placeholder="예) 150명"/></div>
           <div><div style="font-size:11px;color:#94a3b8;margin-bottom:3px">메모</div><input id="s-memo" style="width:100%" placeholder="특이사항, 소개 경로 등"/></div>
@@ -807,6 +816,9 @@ function loadToScoring(c){
   scoreChecks={};
   document.getElementById("s-company").value=c.name||"";
   document.getElementById("s-contact").value=c.contact||"";
+  document.getElementById("s-phone").value=c.phone||"";
+  document.getElementById("s-email").value=c.email||"";
+  document.getElementById("s-source").value=c.source||"";
   document.getElementById("s-industry").value=c.manual?c.industry_nm:(c.industry_nm&&c.industry_nm!=="-"?getCorpMajor(c.industry_nm):"");
   document.getElementById("s-employees").value=c.employees?c.employees.toLocaleString()+"명":"";
   document.getElementById("s-memo").value=`매출: ${fmt(c.revenue)} · 설립: ${c.founded||"-"}년 · ${c.region||""}`;
@@ -909,15 +921,13 @@ function saveLead(){
   if(!company)return alert("기업명을 입력해주세요.");
   const score=calcScore(),grade=getGrade(score);
   const checkedLabels=CRITERIA.flatMap(c=>c.items).filter(i=>scoreChecks[i.id]).map(i=>i.label);
-  // 스코어링 탭에 loadToScoring으로 불러온 기업 정보 참조
-  const srcCorp = [...results, ...manualCorps, ...saved].find(c => c.name === company);
   const lead={
     id:Date.now().toString(),
     company,
     contact:document.getElementById("s-contact").value.trim(),
-    phone: srcCorp?.phone||"",
-    email: srcCorp?.email||"",
-    source: srcCorp?.source||"",
+    phone:document.getElementById("s-phone").value.trim(),
+    email:document.getElementById("s-email").value.trim(),
+    source:document.getElementById("s-source").value,
     industry:document.getElementById("s-industry").value.trim(),
     employees:document.getElementById("s-employees").value.trim(),
     memo:document.getElementById("s-memo").value.trim(),
@@ -928,7 +938,9 @@ function saveLead(){
   leadList.unshift(lead);localStorage.setItem("bcm_leads",JSON.stringify(leadList));
   document.getElementById("t4-cnt").textContent=`(${leadList.length})`;
   document.getElementById("hb-leads").textContent=`리드 ${leadList.length}건`;
-  scoreChecks={};["s-company","s-contact","s-industry","s-employees","s-memo"].forEach(id=>document.getElementById(id).value="");
+  scoreChecks={};
+  ["s-company","s-contact","s-phone","s-email","s-industry","s-employees","s-memo"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("s-source").value="";
   document.getElementById("import-banner").style.display="none";
   renderChecklist();alert(`✅ 저장됨 — ${grade.label} (${score}점)`);switchTab("leads");
 }
