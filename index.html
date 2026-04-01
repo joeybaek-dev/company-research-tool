@@ -77,7 +77,18 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
 .chk-pts{font-size:12px;font-weight:600;min-width:28px;text-align:right}
 .import-bar{background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .lead-card{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #e2e8f0}
-.lead-card .action-plan{background:#f8fafc;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:12px}
+/* ── 직접 등록 모달 ── */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#94a3b8;line-height:1}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.modal-field{display:flex;flex-direction:column;gap:4px}
+.modal-field.full{grid-column:1/-1}
+.modal-field label{font-size:11px;color:#94a3b8;font-weight:500}
+.modal-field input,.modal-field select,.modal-field textarea{padding:8px 10px;border-radius:8px;border:1.5px solid #e2e8f0;font-size:13px;font-family:inherit;background:#f8fafc;color:#0f172a}
+.modal-field textarea{resize:vertical;min-height:70px}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{outline:none;border-color:#1e40af;background:#fff}background:#f8fafc;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:12px}
 .action-plan .ap-title{font-weight:700;margin-bottom:8px;font-size:13px}
 .ap-row{display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid #f1f5f9}
 .ap-row:last-child{border-bottom:none}
@@ -117,7 +128,70 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
     <button class="tab" id="t4" onclick="switchTab('leads')">📊 리드 목록 <span id="t4-cnt">(0)</span></button>
   </div>
 
-  <!-- 탭1: 기업 검색 -->
+  <!-- 직접 등록 모달 -->
+  <div id="manual-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="modal-title">
+        <span>✏️ 기업 직접 등록</span>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div style="font-size:11px;color:#94a3b8;margin-bottom:14px;padding:8px 12px;background:#f8fafc;border-radius:8px">
+        DART에 없는 기업을 직접 등록합니다. * 표시는 필수 항목입니다.
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:#1e40af;margin-bottom:8px">기업 기본 정보</div>
+      <div class="modal-grid">
+        <div class="modal-field full"><label>기업명 *</label><input id="m-name" placeholder="예) (주)민병철교육"/></div>
+        <div class="modal-field"><label>대표자명</label><input id="m-ceo" placeholder="예) 홍길동"/></div>
+        <div class="modal-field"><label>설립연도</label><input id="m-founded" placeholder="예) 2000"/></div>
+        <div class="modal-field"><label>지역</label>
+          <select id="m-region">
+            <option value="">선택</option>
+            ${["서울","경기","인천","부산","대구","광주","대전","울산","세종","강원","충청","전라","경상","제주"].map(r=>`<option value="${r}">${r}</option>`).join("")}
+          </select>
+        </div>
+        <div class="modal-field"><label>업종 대분류</label>
+          <select id="m-major">
+            <option value="">선택</option>
+            ${Object.keys(MAJOR_MAP).map(m=>`<option value="${m}">${m}</option>`).join("")}
+          </select>
+        </div>
+        <div class="modal-field"><label>홈페이지</label><input id="m-homepage" placeholder="예) www.example.com"/></div>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:#1e40af;margin:14px 0 8px">재무 & 규모</div>
+      <div class="modal-grid">
+        <div class="modal-field"><label>임직원 수</label><input id="m-employees" placeholder="예) 150" type="number"/></div>
+        <div class="modal-field"><label>매출액 (억원)</label><input id="m-revenue" placeholder="예) 500" type="number"/></div>
+        <div class="modal-field"><label>영업이익 (억원)</label><input id="m-profit" placeholder="예) 50" type="number"/></div>
+        <div class="modal-field"><label>자산총계 (억원)</label><input id="m-assets" placeholder="예) 1000" type="number"/></div>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:#1e40af;margin:14px 0 8px">담당자 & 메모</div>
+      <div class="modal-grid">
+        <div class="modal-field"><label>담당자명</label><input id="m-contact" placeholder="예) 김민지 팀장"/></div>
+        <div class="modal-field"><label>담당자 연락처</label><input id="m-phone" placeholder="예) 010-1234-5678"/></div>
+        <div class="modal-field"><label>담당자 이메일</label><input id="m-email" placeholder="예) kim@company.com"/></div>
+        <div class="modal-field"><label>소개 경로</label>
+          <select id="m-source">
+            <option value="">선택</option>
+            <option>콜드세일즈</option>
+            <option>인바운드</option>
+            <option>지인 소개</option>
+            <option>이메일 답장</option>
+            <option>전시/행사</option>
+            <option>기타</option>
+          </select>
+        </div>
+        <div class="modal-field full"><label>메모</label><textarea id="m-memo" placeholder="특이사항, 니즈, 현재 상황 등"></textarea></div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:18px">
+        <button onclick="saveManual()" style="flex:1;padding:11px;background:#1e40af;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">저장 리스트에 추가</button>
+        <button onclick="saveManualAndScore()" style="flex:1;padding:11px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">저장 + 스코어링 바로가기</button>
+      </div>
+    </div>
+  </div>
   <div id="p-search">
     <div class="card">
       <input type="text" class="si" id="kw" placeholder="🔍 기업명 검색 (비워두면 필터 조건으로만 검색)"/>
@@ -147,6 +221,7 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <button class="btn bp" id="btn-search" onclick="doSearch()">🔍 검색하기</button>
         <button class="btn bg bs" onclick="resetSearch()">↺ 초기화</button>
+        <button class="btn bg bs" onclick="openModal()" style="border-color:#7c3aed;color:#7c3aed">✏️ 직접 등록</button>
         <button class="btn bg bs" id="btn-stop" style="display:none" onclick="stopSearch()">⏹ 중단</button>
         <span id="search-status" style="font-size:12px;color:#64748b"></span>
       </div>
@@ -495,6 +570,60 @@ async function doSearch(){
     return a.name.localeCompare(b.name,"ko");
   });
   endSearch();setStatus(`✅ ${results.length}개 기업 조회 완료`);draw();
+}
+
+/* ── 직접 등록 ── */
+function openModal(){document.getElementById("manual-modal").style.display="flex";}
+function closeModal(){
+  document.getElementById("manual-modal").style.display="none";
+  ["m-name","m-ceo","m-founded","m-homepage","m-employees","m-revenue","m-profit","m-assets","m-contact","m-phone","m-email","m-memo"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  ["m-region","m-major","m-source"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+}
+
+function buildManualCorp(){
+  const name=document.getElementById("m-name").value.trim();
+  if(!name){alert("기업명을 입력해주세요.");return null;}
+  const revenue=parseInt(document.getElementById("m-revenue").value)||null;
+  const profit=parseInt(document.getElementById("m-profit").value)||null;
+  const assets=parseInt(document.getElementById("m-assets").value)||null;
+  const employees=parseInt(document.getElementById("m-employees").value)||null;
+  const contact=document.getElementById("m-contact").value.trim();
+  const phone=document.getElementById("m-phone").value.trim();
+  const email=document.getElementById("m-email").value.trim();
+  const source=document.getElementById("m-source").value;
+  const memo=[contact&&`담당자: ${contact}`,phone&&`연락처: ${phone}`,email&&`이메일: ${email}`,source&&`소개경로: ${source}`].filter(Boolean).join(" · ");
+  return{
+    id:"manual_"+Date.now(),
+    corp_code:"manual_"+Date.now(),
+    name,
+    listed:false,
+    manual:true,
+    ceo:document.getElementById("m-ceo").value.trim(),
+    founded:document.getElementById("m-founded").value.trim(),
+    region:document.getElementById("m-region").value,
+    industry_nm:document.getElementById("m-major").value,
+    homepage:document.getElementById("m-homepage").value.trim(),
+    employees,revenue,profit,assets,
+    contact,phone,email,
+    source,
+    memo:document.getElementById("m-memo").value.trim()||(memo||""),
+    registeredAt:new Date().toLocaleDateString("ko-KR"),
+  };
+}
+
+function saveManual(){
+  const corp=buildManualCorp();if(!corp)return;
+  if(!saved.some(s=>s.id===corp.id)){saved.push(corp);svSaved();}
+  closeModal();
+  switchTab("saved");
+  alert(`✅ "${corp.name}" 저장 완료!`);
+}
+
+function saveManualAndScore(){
+  const corp=buildManualCorp();if(!corp)return;
+  if(!saved.some(s=>s.id===corp.id)){saved.push(corp);svSaved();}
+  closeModal();
+  loadToScoring(corp);
 }
 
 function resetSearch(){
