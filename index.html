@@ -1070,7 +1070,23 @@ function renderLeads(){
           <div class="ap-row">
             <input type="checkbox" class="ap-done" ${l.doneTasks&&l.doneTasks[i]?"checked":""} onchange="toggleTask(this,${realIdx},${i})"/>
             <span class="ap-day" style="color:${l.gradeColor}">${p.day}</span>
-            <span class="ap-task" style="${l.doneTasks&&l.doneTasks[i]?"text-decoration:line-through;color:#94a3b8":""}">${p.task}</span>
+            <div style="flex:1">
+              <span class="ap-task" style="${l.doneTasks&&l.doneTasks[i]?"text-decoration:line-through;color:#94a3b8":""}">${p.task}</span>
+              ${l.taskMemos&&l.taskMemos[i]?`
+                <div style="margin-top:4px;font-size:11px;color:#7c3aed;background:#f5f3ff;padding:4px 8px;border-radius:6px;display:flex;justify-content:space-between;align-items:center">
+                  <span>📝 ${l.taskMemos[i]}</span>
+                  <button onclick="editTaskMemo(${realIdx},${i})" style="background:none;border:none;font-size:10px;color:#94a3b8;cursor:pointer;margin-left:6px">수정</button>
+                </div>` : `
+                <div id="memo-area-${realIdx}-${i}" style="display:none;margin-top:4px">
+                  <input type="text" placeholder="메모 입력..." id="memo-input-${realIdx}-${i}"
+                    style="width:calc(100% - 60px);padding:4px 8px;font-size:11px;border-radius:6px;border:1px solid #e2e8f0"
+                    onkeydown="if(event.key==='Enter')saveTaskMemo(${realIdx},${i})"/>
+                  <button onclick="saveTaskMemo(${realIdx},${i})" style="background:#7c3aed;color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;margin-left:4px">저장</button>
+                </div>`}
+              <button onclick="toggleMemoArea(${realIdx},${i})" style="background:none;border:none;font-size:11px;color:#94a3b8;cursor:pointer;margin-top:2px;display:${l.taskMemos&&l.taskMemos[i]?'none':'block'}">
+                + 메모 추가
+              </button>
+            </div>
           </div>`).join("")}
       </div>
 
@@ -1163,6 +1179,41 @@ async function generateEmail(lead, btnEl, containerEl){
 function copyEmail(btn){
   const text=btn.nextElementSibling.textContent;
   navigator.clipboard.writeText(text).then(()=>{btn.textContent="✓ 복사됨";setTimeout(()=>btn.textContent="복사",1500);});
+}
+
+function toggleMemoArea(leadIdx, taskIdx){
+  const area=document.getElementById(`memo-area-${leadIdx}-${taskIdx}`);
+  if(!area)return;
+  const isHidden=area.style.display==="none";
+  area.style.display=isHidden?"flex":"none";
+  if(isHidden)document.getElementById(`memo-input-${leadIdx}-${taskIdx}`)?.focus();
+}
+
+async function saveTaskMemo(leadIdx, taskIdx){
+  const input=document.getElementById(`memo-input-${leadIdx}-${taskIdx}`);
+  if(!input)return;
+  const memo=input.value.trim();
+  if(!memo)return;
+  if(!leadList[leadIdx].taskMemos)leadList[leadIdx].taskMemos={};
+  leadList[leadIdx].taskMemos[taskIdx]=memo;
+  localStorage.setItem("bcm_leads",JSON.stringify(leadList));
+  await dbUpsert("leads", leadList[leadIdx]);
+  renderLeads();
+}
+
+async function editTaskMemo(leadIdx, taskIdx){
+  if(!leadList[leadIdx].taskMemos)return;
+  const current=leadList[leadIdx].taskMemos[taskIdx]||"";
+  const newMemo=prompt("메모 수정:", current);
+  if(newMemo===null)return;
+  if(newMemo.trim()===""){
+    delete leadList[leadIdx].taskMemos[taskIdx];
+  }else{
+    leadList[leadIdx].taskMemos[taskIdx]=newMemo.trim();
+  }
+  localStorage.setItem("bcm_leads",JSON.stringify(leadList));
+  await dbUpsert("leads", leadList[leadIdx]);
+  renderLeads();
 }
 
 function toggleTask(cb, leadIdx, taskIdx){
