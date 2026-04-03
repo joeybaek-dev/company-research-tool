@@ -308,7 +308,10 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
   <div id="p-leads" style="display:none">
     <div class="st" id="lead-stats"></div>
     <div style="display:flex;gap:8px;margin-bottom:14px;justify-content:flex-end;flex-wrap:wrap">
-      <button class="btn bge bs" onclick="expLeadCSV()" id="btn-lead-csv" style="display:none">📥 CSV 다운로드</button>
+      <button class="btn bge bs" onclick="expLeadCSV('전체')" id="btn-lead-csv" style="display:none">📥 전체 CSV</button>
+      <button class="btn bge bs" onclick="expLeadCSV('A등급')" id="btn-lead-csv-a" style="display:none">📥 A등급 CSV</button>
+      <button class="btn bge bs" onclick="expLeadCSV('B등급')" id="btn-lead-csv-b" style="display:none">📥 B등급 CSV</button>
+      <button class="btn bge bs" onclick="expLeadCSV('C등급')" id="btn-lead-csv-c" style="display:none">📥 C등급 CSV</button>
       <button class="btn bre bs" onclick="clrLeads()">전체 삭제</button>
     </div>
     <div id="lead-list"></div>
@@ -1006,7 +1009,17 @@ function saveLead(){
 let leadFilter = "전체";
 
 function renderLeads(){
-  const csvBtn=document.getElementById("btn-lead-csv");if(csvBtn)csvBtn.style.display=leadList.length?"inline-block":"none";
+  const hasA=leadList.some(l=>l.grade==="A등급");
+  const hasB=leadList.some(l=>l.grade==="B등급");
+  const hasC=leadList.some(l=>l.grade==="C등급");
+  const csvBtn=document.getElementById("btn-lead-csv");
+  const csvA=document.getElementById("btn-lead-csv-a");
+  const csvB=document.getElementById("btn-lead-csv-b");
+  const csvC=document.getElementById("btn-lead-csv-c");
+  if(csvBtn)csvBtn.style.display=leadList.length?"inline-block":"none";
+  if(csvA)csvA.style.display=hasA?"inline-block":"none";
+  if(csvB)csvB.style.display=hasB?"inline-block":"none";
+  if(csvC)csvC.style.display=hasC?"inline-block":"none";
   document.getElementById("lead-stats").innerHTML=[
     ["A등급 즉시접촉",leadList.filter(l=>l.grade==="A등급").length,"#0F6E56","#E1F5EE","A등급"],
     ["B등급 육성",leadList.filter(l=>l.grade==="B등급").length,"#854F0B","#FAEEDA","B등급"],
