@@ -88,11 +88,13 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
 .modal-field label{font-size:11px;color:#94a3b8;font-weight:500}
 .modal-field input,.modal-field select,.modal-field textarea{padding:8px 10px;border-radius:8px;border:1.5px solid #e2e8f0;font-size:13px;font-family:inherit;background:#f8fafc;color:#0f172a}
 .modal-field textarea{resize:vertical;min-height:70px}
-.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{outline:none;border-color:#1e40af;background:#fff}background:#f8fafc;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:12px}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{outline:none;border-color:#1e40af;background:#fff}
+.action-plan{background:#f8fafc;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:12px}
 .action-plan .ap-title{font-weight:700;margin-bottom:8px;font-size:13px}
-.ap-row{display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid #f1f5f9}
+/* ── 수정: align-items center, padding-top 제거 ── */
+.ap-row{display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #f1f5f9}
 .ap-row:last-child{border-bottom:none}
-.ap-day{font-size:11px;font-weight:700;min-width:52px;padding-top:1px}
+.ap-day{font-size:11px;font-weight:700;min-width:52px}
 .ap-task{flex:1;font-size:12px;color:#334155}
 .ap-done{width:16px;height:16px;border-radius:4px;border:1.5px solid #cbd5e1;cursor:pointer;flex-shrink:0;accent-color:#1e40af}
 .followup-bar{display:flex;align-items:center;gap:10px;margin-top:8px;padding:8px 12px;border-radius:8px;font-size:12px}
@@ -101,6 +103,7 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
 .email-box pre{white-space:pre-wrap;line-height:1.7;color:#0c4a6e;font-family:inherit}
 .copy-btn{position:absolute;top:8px;right:10px;background:#0ea5e9;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600}
 .email-loading{color:#64748b;font-size:12px;padding:8px 0}
+.lead-card.A{border-left-color:#10b981}
 .lead-card.B{border-left-color:#f59e0b}
 .lead-card.C{border-left-color:#ef4444}
 .grade-stat{flex:1;min-width:90px;border-radius:10px;padding:12px 14px}
@@ -536,7 +539,6 @@ async function doSearch(){
 
   let pool;
   if(ind){
-    // 세분류 선택 → 정확히 매칭
     pool=listedCorps.filter(c=>{
       if(kw&&!c.name.includes(kw))return false;
       if(lst==="Y"&&!c.listed)return false;
@@ -544,7 +546,6 @@ async function doSearch(){
       return c.industry_nm===ind;
     });
   }else if(major){
-    // 대분류만 선택 → 해당 대분류 업종명 Set으로 필터
     const majorNms=getMajorIndustryNms(major);
     pool=listedCorps.filter(c=>{
       if(kw&&!c.name.includes(kw))return false;
@@ -553,7 +554,6 @@ async function doSearch(){
       return majorNms.has(c.industry_nm);
     });
   }else{
-    // 업종 필터 없음 → allCorps 전체
     pool=allCorps.filter(c=>{
       if(kw&&!c.name.includes(kw))return false;
       if(lst==="Y"&&!c.listed)return false;
@@ -562,12 +562,11 @@ async function doSearch(){
     }).map(c=>{const d=listedCorps.find(l=>l.corp_code===c.corp_code);return d?{...c,...d}:c;});
   }
 
-  // 직접 등록 기업 검색에 포함
   const manualMatched = manualCorps.filter(c => {
     if(kw && !c.name.includes(kw)) return false;
     if(major && c.industry_nm !== major) return false;
     if(ind && c.industry_nm !== ind) return false;
-    if(lst === "Y") return false; // 직접 등록은 비상장
+    if(lst === "Y") return false;
     return true;
   });
 
@@ -579,7 +578,6 @@ async function doSearch(){
     endSearch();return;
   }
 
-  // 직접 등록 기업은 재무 조회 없이 그대로 results에 추가
   results.push(...manualMatched);
 
   const targets=filtered.filter(c=>!c.manual).slice(0,50);
@@ -606,13 +604,13 @@ async function doSearch(){
           if(total>0)empNo=total;
         }
       }catch{}
-              return{...c,industry_nm:indNm,
-          region:c.region||(det?.status==="000"&&det.adres?det.adres.slice(0,2):"-"),
-          founded:c.founded||(det?.status==="000"&&det.est_dt?det.est_dt.slice(0,4):"-"),
-          ceo:c.ceo||(det?.status==="000"?det.ceo_nm||"":"-"),
-          employees:empNo,
-          homepage:c.homepage||(det?.status==="000"?det.hm_url||"":""),
-          revenue:get("매출액"),profit:get("영업이익"),assets:get("자산총계")};
+      return{...c,industry_nm:indNm,
+        region:c.region||(det?.status==="000"&&det.adres?det.adres.slice(0,2):"-"),
+        founded:c.founded||(det?.status==="000"&&det.est_dt?det.est_dt.slice(0,4):"-"),
+        ceo:c.ceo||(det?.status==="000"?det.ceo_nm||"":"-"),
+        employees:empNo,
+        homepage:c.homepage||(det?.status==="000"?det.hm_url||"":""),
+        revenue:get("매출액"),profit:get("영업이익"),assets:get("자산총계")};
     }));
     results.push(...bRes);done+=batch.length;
     setStatus(`재무정보 조회 중... (${done}/${Math.min(targets.length,50)})`);
@@ -630,14 +628,12 @@ async function doSearch(){
 
 /* ── 직접 등록 ── */
 function openModal(){
-  // 지역 드롭다운 채우기
   const regionSel=document.getElementById("m-region");
   if(regionSel.options.length<=1){
     ["서울","경기","인천","부산","대구","광주","대전","울산","세종","강원","충청","전라","경상","제주"].forEach(r=>{
       const o=document.createElement("option");o.value=r;o.textContent=r;regionSel.appendChild(o);
     });
   }
-  // 업종 대분류 드롭다운 채우기
   const majorSel=document.getElementById("m-major");
   if(majorSel.options.length<=1){
     Object.keys(MAJOR_MAP).forEach(m=>{
@@ -671,7 +667,10 @@ function buildManualCorp(){
     industry_nm:document.getElementById("m-major").value,
     homepage:document.getElementById("m-homepage").value.trim(),
     employees,revenue,profit,assets,
-    contact,phone,email,source,
+    contact:document.getElementById("m-contact").value.trim(),
+    phone:document.getElementById("m-phone").value.trim(),
+    email:document.getElementById("m-email").value.trim(),
+    source:document.getElementById("m-source").value,
     memo:document.getElementById("m-memo").value.trim(),
     registeredAt:new Date().toLocaleDateString("ko-KR"),
   };
@@ -679,10 +678,8 @@ function buildManualCorp(){
 
 function saveManual(){
   const corp=buildManualCorp();if(!corp)return;
-  // 직접 등록 DB에 저장 (새로고침 후에도 유지)
   manualCorps.unshift(corp);
   localStorage.setItem("bcm_manual",JSON.stringify(manualCorps));
-  // 검색 결과에도 즉시 반영
   results.unshift(corp);
   filtered.unshift(corp);
   closeModal();
@@ -747,7 +744,6 @@ function draw(){
           ${c.manual&&(c.contact||c.phone||c.email)?`<div style="font-size:12px;color:#7c3aed;margin-top:3px">
             ${c.contact?`👤 ${c.contact}`:""}${c.phone?` · 📞 ${c.phone}`:""}${c.email?` · ✉ ${c.email}`:""}${c.source?` · 📌 ${c.source}`:""}
           </div>`:""}
-        
           <div class="mt">
             <div><div class="l">매출</div><div class="v" style="color:#f59e0b">${fmt(c.revenue)}</div></div>
             <div><div class="l">영업이익</div><div class="v" style="color:${(c.profit||0)>=0?"#10b981":"#ef4444"}">${fmt(c.profit)}</div></div>
@@ -1075,7 +1071,10 @@ function renderLeads(){
               ${l.taskMemos&&l.taskMemos[i]?`
                 <div style="margin-top:4px;font-size:11px;color:#7c3aed;background:#f5f3ff;padding:4px 8px;border-radius:6px;display:flex;justify-content:space-between;align-items:center">
                   <span>📝 ${l.taskMemos[i]}</span>
-                  <button onclick="editTaskMemo(${realIdx},${i})" style="background:none;border:none;font-size:10px;color:#94a3b8;cursor:pointer;margin-left:6px">수정</button>
+                  <div style="display:flex;gap:2px;flex-shrink:0;margin-left:6px">
+                    <button onclick="editTaskMemo(${realIdx},${i})" style="background:none;border:none;font-size:10px;color:#94a3b8;cursor:pointer">수정</button>
+                    <button onclick="deleteTaskMemo(${realIdx},${i})" style="background:none;border:none;font-size:10px;color:#ef4444;cursor:pointer">삭제</button>
+                  </div>
                 </div>` : `
                 <div id="memo-area-${realIdx}-${i}" style="display:none;margin-top:4px">
                   <input type="text" placeholder="메모 입력..." id="memo-input-${realIdx}-${i}"
@@ -1164,7 +1163,6 @@ async function generateEmail(lead, btnEl, containerEl){
         <a href="https://claude.ai" target="_blank" style="color:#1e40af;font-weight:700">Claude.ai 열기↗</a> 후 붙여넣기(Ctrl+V)하면 이메일 초안이 바로 생성됩니다.
       </div>`;
   }catch{
-    // 클립보드 실패 시 텍스트로 표시
     containerEl.innerHTML=`
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;margin-top:8px;font-size:12px;position:relative">
         <button onclick="navigator.clipboard.writeText(this.parentElement.querySelector('pre').textContent).then(()=>{this.textContent='✓ 복사됨';setTimeout(()=>this.textContent='복사',1500)})"
@@ -1216,6 +1214,16 @@ async function editTaskMemo(leadIdx, taskIdx){
   renderLeads();
 }
 
+/* ── 메모 삭제 (신규 추가) ── */
+async function deleteTaskMemo(leadIdx, taskIdx){
+  if(!confirm("이 메모를 삭제할까요?"))return;
+  if(!leadList[leadIdx]?.taskMemos)return;
+  delete leadList[leadIdx].taskMemos[taskIdx];
+  localStorage.setItem("bcm_leads",JSON.stringify(leadList));
+  await dbUpsert("leads", leadList[leadIdx]);
+  renderLeads();
+}
+
 function toggleTask(cb, leadIdx, taskIdx){
   if(!leadList[leadIdx].doneTasks)leadList[leadIdx].doneTasks={};
   leadList[leadIdx].doneTasks[taskIdx]=cb.checked;
@@ -1253,25 +1261,21 @@ document.getElementById("kw").addEventListener("keydown",e=>{if(e.key==="Enter")
 
 // 초기화 — Supabase에서 데이터 로드
 async function initData(){
-  // 직접 등록 기업
   const mc=await dbLoad("manual_corps");
   if(mc&&mc.length){
     manualCorps=mc;
     localStorage.setItem("bcm_manual",JSON.stringify(manualCorps));
   }
-  // 저장 리스트
   const sc=await dbLoad("saved_corps");
   if(sc&&sc.length){
     saved=sc;
     localStorage.setItem("cr4",JSON.stringify(saved));
   }
-  // 리드 목록
   const ld=await dbLoad("leads");
   if(ld&&ld.length){
-    leadList=ld.reverse(); // 최신순
+    leadList=ld.reverse();
     localStorage.setItem("bcm_leads",JSON.stringify(leadList));
   }
-  // 카운터 업데이트
   document.getElementById("t2-cnt").textContent=`(${saved.length})`;
   document.getElementById("t4-cnt").textContent=`(${leadList.length})`;
   document.getElementById("hb-saved").textContent=`저장 ${saved.length}개`;
