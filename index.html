@@ -580,7 +580,7 @@ async function doSearch(){
 
   results.push(...manualMatched);
 
-  const targets=filtered.filter(c=>!c.manual).slice(0,50);
+  const targets=filtered.filter(c=>!c.manual).sort((a,b)=>(b.employees||0)-(a.employees||0)).slice(0,50);
   const year=String(new Date().getFullYear()-1);
   let done=0;
   for(let i=0;i<targets.length;i+=5){
