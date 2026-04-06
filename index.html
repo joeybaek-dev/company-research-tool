@@ -466,7 +466,11 @@ async function initCorps(){
   try{
     const [r1,r2]=await Promise.all([fetch(CORPS_JSON),fetch(CORPS_LISTED_JSON)]);
     allCorps=await r1.json();
-    listedCorps=(await r2.json()).map(c=>({...c,industry_nm:c.industry_nm!=="-"?c.industry_nm:getIndNm(c.industry_code)}));
+    listedCorps=(await r2.json()).map(c=>{
+      const recalc=c.industry_code?getIndNm(c.industry_code):null;
+      const industry_nm=(recalc&&recalc!=="-")?recalc:c.industry_nm;
+      return{...c,industry_nm};
+    });
     corpsLoaded=true;
     // 세분류 드롭다운
     const inds=[...new Set(listedCorps.map(c=>c.industry_nm).filter(i=>i&&i!=="-"))].sort();
