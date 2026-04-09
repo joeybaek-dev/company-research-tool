@@ -130,9 +130,10 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
   <div class="login-box">
     <div class="login-logo">🏢</div>
     <div class="login-title">BCM B2B 영업툴</div>
-    <div class="login-sub">민병철교육 B2B 영업팀 전용 서비스입니다.<br>등록된 이메일로 로그인 링크를 받으세요.</div>
-    <input class="login-input" id="login-email" type="email" placeholder="이메일 주소 입력" onkeydown="if(event.key==='Enter')sendMagicLink()"/>
-    <button class="login-btn" id="login-btn" onclick="sendMagicLink()">✉ 로그인 링크 받기</button>
+    <div class="login-sub">민병철교육 B2B 영업팀 전용 서비스입니다.</div>
+    <input class="login-input" id="login-email" type="email" placeholder="이메일 주소" onkeydown="if(event.key==='Enter')document.getElementById('login-pw').focus()"/>
+    <input class="login-input" id="login-pw" type="password" placeholder="비밀번호" onkeydown="if(event.key==='Enter')signIn()"/>
+    <button class="login-btn" id="login-btn" onclick="signIn()">🔐 로그인</button>
     <div class="login-msg" id="login-msg"></div>
   </div>
 </div>
@@ -326,15 +327,15 @@ const SUPABASE_KEY="sb_publishable_6ms4oChTja-DwRkQPg9wag_A6VfS15X";
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 /* ── 인증 ── */
-async function sendMagicLink(){
+async function signIn(){
   const email=document.getElementById("login-email").value.trim();
-  if(!email)return showLoginMsg("이메일을 입력해주세요.","err");
+  const password=document.getElementById("login-pw").value;
+  if(!email||!password)return showLoginMsg("이메일과 비밀번호를 입력해주세요.","err");
   const btn=document.getElementById("login-btn");
-  btn.disabled=true;btn.textContent="전송 중...";
-  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.origin}});
-  btn.disabled=false;btn.textContent="✉ 로그인 링크 받기";
-  if(error)showLoginMsg("오류: "+error.message,"err");
-  else showLoginMsg("✅ "+email+"로 로그인 링크를 보냈습니다. 메일함을 확인해주세요.","ok");
+  btn.disabled=true;btn.textContent="로그인 중...";
+  const {error}=await sb.auth.signInWithPassword({email,password});
+  btn.disabled=false;btn.textContent="🔐 로그인";
+  if(error)showLoginMsg("이메일 또는 비밀번호가 올바르지 않습니다.","err");
 }
 function showLoginMsg(msg,type){
   const el=document.getElementById("login-msg");
