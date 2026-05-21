@@ -119,6 +119,21 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
 .login-msg.err{color:#ef4444}
 .logout-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:20px;padding:4px 12px;font-size:12px;cursor:pointer;font-weight:600}
 @media(max-width:640px){.score-header{grid-template-columns:1fr}.score-live{position:static}}
+/* ── AI 에이전트 ── */
+.agent-btn{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#1e40af);color:#fff;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 16px rgba(124,58,237,.4);z-index:500;transition:all .2s}
+.agent-btn:hover{transform:scale(1.1)}
+.agent-panel{position:fixed;bottom:90px;right:24px;width:340px;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.15);z-index:500;display:none;flex-direction:column;overflow:hidden;border:1.5px solid #e9d5ff;max-height:480px}
+.agent-header{background:linear-gradient(135deg,#7c3aed,#1e40af);padding:14px 16px;color:#fff;font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.agent-close{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;line-height:1}
+.agent-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:200px}
+.agent-msg{padding:8px 12px;border-radius:10px;font-size:13px;line-height:1.5;max-width:90%}
+.agent-msg.bot{background:#f5f3ff;color:#1e293b;align-self:flex-start;border-bottom-left-radius:4px}
+.agent-msg.user{background:#1e40af;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.agent-msg.typing{background:#f5f3ff;color:#94a3b8;align-self:flex-start}
+.agent-input-wrap{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #e9d5ff;background:#faf5ff}
+.agent-input{flex:1;padding:8px 12px;border-radius:8px;border:1.5px solid #ddd6fe;font-size:13px;font-family:inherit;outline:none}
+.agent-input:focus{border-color:#7c3aed}
+.agent-send{background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
@@ -312,6 +327,22 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
     </div>
     <div id="lead-list"></div>
     <button class="btn bo" onclick="switchTab('scoring')" style="width:100%;margin-top:8px">+ 새 리드 스코어링</button>
+  </div>
+</div>
+
+<!-- AI 에이전트 -->
+<button class="agent-btn" onclick="toggleAgent()" title="AI 에이전트">🤖</button>
+<div class="agent-panel" id="agent-panel">
+  <div class="agent-header">
+    <span>🤖 AI 에이전트</span>
+    <button class="agent-close" onclick="toggleAgent()">×</button>
+  </div>
+  <div class="agent-msgs" id="agent-msgs">
+    <div class="agent-msg bot">안녕하세요! 검색하고 싶은 기업 조건을 말씀해주세요.<br><br>예시:<br>• "외국계 기업 보여줘"<br>• "IT 스타트업 비상장만"<br>• "건설업 상장사 매출 높은 순"<br>• "저장된 기업 보여줘"</div>
+  </div>
+  <div class="agent-input-wrap">
+    <input class="agent-input" id="agent-input" placeholder="무엇을 찾을까요?" onkeydown="if(event.key==='Enter')sendAgent()"/>
+    <button class="agent-send" onclick="sendAgent()">전송</button>
   </div>
 </div>
 </div>
@@ -1095,6 +1126,120 @@ async function initData(){
 }
 
 checkAuth();
+
+/* ── AI 에이전트 (규칙 기반) ── */
+function toggleAgent(){
+  const p=document.getElementById("agent-panel");
+  p.style.display=p.style.display==="flex"?"none":"flex";
+  if(p.style.display==="flex")document.getElementById("agent-input").focus();
+}
+function addAgentMsg(text,type){
+  const msgs=document.getElementById("agent-msgs");
+  const div=document.createElement("div");
+  div.className="agent-msg "+type;
+  div.innerHTML=text;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+
+function parseQuery(msg){
+  const m=msg.toLowerCase().replace(/\s+/g," ");
+
+  // 탭 전환
+  if(/저장.*(기업|리스트|목록)|저장탭/.test(m))return{action:"tab",tab:"saved",message:"저장 리스트로 이동할게요!"};
+  if(/리드.*(목록|리스트|탭)|영업.*(목록|리스트)/.test(m))return{action:"tab",tab:"leads",message:"리드 목록으로 이동할게요!"};
+  if(/스코어링|점수/.test(m)&&!/검색/.test(m))return{action:"tab",tab:"scoring",message:"리드 스코어링 탭으로 이동할게요!"};
+
+  // CSV 내보내기
+  if(/csv|내보내기|다운로드|엑셀/.test(m))return{action:"export",message:"CSV 내보내기를 실행할게요!"};
+
+  // 검색 파라미터 파싱
+  let keyword="", major="", lst="", sort="revenue_desc", explain=[];
+
+  // 업종 대분류 매핑
+  const majorMap=[
+    {keys:["it","정보통신","소프트웨어","게임","인터넷","플랫폼","앱","스타트업","테크","tech"],val:"정보통신업"},
+    {keys:["제조","공장","생산","산업"],val:"제조업"},
+    {keys:["건설","건축","시공","인테리어","플랜트"],val:"건설업"},
+    {keys:["도매","소매","유통","판매","무역","수출","수입"],val:"도·소매업"},
+    {keys:["금융","은행","증권","투자","자산"],val:"금융·보험업"},
+    {keys:["보험"],val:"금융·보험업"},
+    {keys:["부동산","임대","분양","리츠"],val:"부동산업"},
+    {keys:["물류","운송","운수","배송","항공","해운","택배"],val:"운수·창고업"},
+    {keys:["교육","학원","대학","학교","이러닝"],val:"공공·교육·보건"},
+    {keys:["의료","병원","제약","바이오","헬스","보건"],val:"공공·교육·보건"},
+    {keys:["음식","식품","외식","레스토랑","카페"],val:"숙박·음식업"},
+    {keys:["호텔","숙박","여행","관광"],val:"숙박·음식업"},
+    {keys:["에너지","전기","가스","발전","수도"],val:"전기·가스·수도"},
+    {keys:["농업","농산물","식물","축산","어업","수산"],val:"농·임·어업"},
+    {keys:["광업","광산","채굴"],val:"광업"},
+    {keys:["전문","컨설팅","법무","회계","연구","개발","r&d"],val:"전문·과학·기술"},
+    {keys:["스포츠","예술","문화","엔터","공연"],val:"예술·스포츠·여가"},
+  ];
+  for(const {keys,val} of majorMap){
+    if(keys.some(k=>m.includes(k))){major=val;explain.push(`업종: ${val}`);break;}
+  }
+
+  // 상장 여부
+  if(/비상장|중소|sme|스타트업|벤처/.test(m)){lst="N";explain.push("비상장사");}
+  else if(/상장|코스피|코스닥|코넥스|대기업/.test(m)){lst="Y";explain.push("상장사");}
+
+  // 정렬
+  if(/임직원|직원|인원|규모|큰/.test(m)){sort="employees_desc";explain.push("임직원 많은 순");}
+  else if(/매출.*낮|작은/.test(m)){sort="revenue_asc";explain.push("매출 낮은 순");}
+  else if(/가나다|이름|alphabetical/.test(m)){sort="name_asc";explain.push("가나다 순");}
+  else{sort="revenue_desc";explain.push("매출 높은 순");}
+
+  // 특수 키워드 → 검색어로
+  if(/외국계|외자|글로벌|해외/.test(m)){keyword="외자";explain.push("키워드: 외자(외국계)");}
+  else if(/공기업|공공기관|공사|공단/.test(m)){keyword="공사";lst="";explain.push("키워드: 공사(공공기관)");}
+  else if(/지주/.test(m)){major="지주회사";explain.push("업종: 지주회사");}
+
+  // 기업명 직접 검색 ("삼성 검색해줘" 등)
+  const directMatch=msg.match(/["'「](.+?)["'」]|^(.+?)(?:검색|찾아|보여|뽑아)/);
+  if(directMatch&&!major&&!keyword){
+    keyword=(directMatch[1]||directMatch[2]||"").trim();
+    if(keyword)explain.push(`키워드: ${keyword}`);
+  }
+
+  if(!major&&!keyword&&!lst){
+    return{action:"message",message:"조건을 좀 더 구체적으로 말씀해주세요!<br>예: <b>IT 비상장 기업</b>, <b>건설업 상장사</b>, <b>외국계 기업</b>"};
+  }
+
+  const desc=explain.length?explain.join(" · "):"조건 검색";
+  return{
+    action:"search",
+    params:{keyword,major,lst,sort},
+    message:`<b>${desc}</b>으로 검색할게요!`
+  };
+}
+
+function sendAgent(){
+  const input=document.getElementById("agent-input");
+  const msg=input.value.trim();
+  if(!msg)return;
+  input.value="";
+  addAgentMsg(msg,"user");
+
+  const result=parseQuery(msg);
+  if(result.message)addAgentMsg(result.message,"bot");
+
+  if(result.action==="search"&&result.params){
+    const p=result.params;
+    document.getElementById("kw").value=p.keyword||"";
+    const majorSel=document.getElementById("find-major");
+    majorSel.value=p.major||"";
+    if(p.major)onMajorChange();
+    document.getElementById("fl").value=p.lst||"";
+    document.getElementById("fs").value=p.sort||"revenue_desc";
+    setTimeout(()=>{doSearch();switchTab("search");toggleAgent();},400);
+  }else if(result.action==="tab"&&result.tab){
+    setTimeout(()=>{switchTab(result.tab);toggleAgent();},400);
+  }else if(result.action==="export"){
+    setTimeout(()=>{expLeadCSV();toggleAgent();},400);
+  }
+}
 </script>
 </body>
 </html>
