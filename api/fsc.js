@@ -13,26 +13,34 @@ export default async function handler(req, res) {
     const items = data?.response?.body?.items?.item || [];
     const list = Array.isArray(items) ? items : [items];
 
-    const results = list
-      .filter(c => c.corpNm)
-      .map(c => ({
-        id: "fsc_" + (c.crno || c.bzno || Date.now()),
-        corp_code: "fsc_" + (c.crno || ""),
-        name: c.corpNm,
-        listed: false,
-        fsc: true,
-        ceo: c.enpRprFnm || "",
-        region: c.enpBsadr ? c.enpBsadr.slice(0, 2) : "-",
-        founded: c.enpEstbDt ? c.enpEstbDt.slice(0, 4) : "-",
-        homepage: c.enpHmpgUrl || "",
-        tel: c.enpTlno || "",
-        industry_nm: c.sicNm || "-",
-        employees: c.enpEmpeCnt ? parseInt(c.enpEmpeCnt) || null : null,
-        revenue: null, profit: null, assets: null,
-        bizno: c.bzno || "",
-        corpno: c.crno || "",
-        address: c.enpBsadr || "",
-      }));
+    // 법인등록번호 또는 사업자번호 기준 중복 제거
+    const seen = new Set();
+    const deduped = list.filter(c => {
+      if (!c.corpNm) return false;
+      const key = c.crno || c.bzno || c.corpNm;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    const results = deduped.map(c => ({
+      id: "fsc_" + (c.crno || c.bzno || Date.now()),
+      corp_code: "fsc_" + (c.crno || ""),
+      name: c.corpNm,
+      listed: false,
+      fsc: true,
+      ceo: c.enpRprFnm || "",
+      region: c.enpBsadr ? c.enpBsadr.slice(0, 2) : "-",
+      founded: c.enpEstbDt ? c.enpEstbDt.slice(0, 4) : "-",
+      homepage: c.enpHmpgUrl || "",
+      tel: c.enpTlno || "",
+      industry_nm: c.sicNm || "-",
+      employees: c.enpEmpeCnt ? parseInt(c.enpEmpeCnt) || null : null,
+      revenue: null, profit: null, assets: null,
+      bizno: c.bzno || "",
+      corpno: c.crno || "",
+      address: c.enpBsadr || "",
+    }));
 
     res.json({ ok: true, results });
   } catch (e) {
