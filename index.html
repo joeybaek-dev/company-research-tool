@@ -1124,7 +1124,10 @@ const fmt=v=>{if(v==null)return"-";if(Math.abs(v)>=10000)return`${(v/10000).toFi
 function expBulkCSV(){
   if(!filtered.length)return alert("검색 결과가 없어요.");
   const headers=["기업명","업종","지역","상장여부","설립연도","대표자","전화번호","홈페이지","임직원수","매출(억)","DART코드"];
-  const rows=filtered.map(c=>[
+  // results(DART 조회 완료)와 병합 - enriched 데이터 우선 사용
+  const enrichedMap=new Map(results.map(r=>[r.id,r]));
+  const data=filtered.map(c=>enrichedMap.get(c.id)||c);
+  const rows=data.map(c=>[
     c.name||"",
     c.manual?c.industry_nm:(c.industry_nm&&c.industry_nm!=="-"?`${getCorpMajor(c.industry_nm)} (${c.industry_nm})`:"-"),
     c.region||"-",
