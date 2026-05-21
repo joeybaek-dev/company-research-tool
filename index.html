@@ -623,7 +623,7 @@ async function doSearch(){
         ceo:c.ceo||(det?.status==="000"?det.ceo_nm||"":"-"),
         employees:empNo,homepage:c.homepage||(det?.status==="000"?det.hm_url||"":""),
         // [수정2] tel 필드 추가
-        tel:c.tel||(det?.status==="000"?det.tel_no||"":""),
+        tel:c.tel||(det?.status==="000"?det.phn_no||"":""),
         revenue:getAny("매출액","이자수익","순이자수익","영업수익","수입보험료"),
         profit:getAny("영업이익","영업이익(손실)"),assets:getAny("자산총계")};
     }));
