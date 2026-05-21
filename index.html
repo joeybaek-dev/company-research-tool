@@ -105,7 +105,6 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
 .lead-card.B{border-left-color:#f59e0b}
 .lead-card.C{border-left-color:#ef4444}
 .grade-stat{flex:1;min-width:90px;border-radius:10px;padding:12px 14px}
-/* ── 로그인 화면 ── */
 .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f1f5f9}
 .login-box{background:#fff;border-radius:20px;padding:40px;width:100%;max-width:420px;box-shadow:0 4px 24px rgba(0,0,0,.10);text-align:center}
 .login-logo{font-size:36px;margin-bottom:12px}
@@ -125,7 +124,6 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
 </head>
 <body>
 
-<!-- 로그인 화면 -->
 <div id="login-screen" class="login-screen">
   <div class="login-box">
     <div class="login-logo">🏢</div>
@@ -138,7 +136,6 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
   </div>
 </div>
 
-<!-- 메인 앱 -->
 <div id="app" style="display:none">
 <div class="wrap">
   <div class="header">
@@ -162,7 +159,6 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
     <button class="tab" id="t4" onclick="switchTab('leads')">📊 리드 목록 <span id="t4-cnt">(0)</span></button>
   </div>
 
-  <!-- 직접 등록 모달 -->
   <div id="manual-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
     <div class="modal">
       <div class="modal-title">
@@ -605,7 +601,8 @@ async function doSearch(){
       const needDetail=!c.industry_nm||c.industry_nm==="-";
       let fin=null,det=null;
       try{const r=await fetch(`${DART_API}?action=finance&corp_code=${c.corp_code}&bsns_year=${year}`);fin=await r.json();}catch{}
-      try{if(needDetail){const r=await fetch(`${DART_API}?action=company&corp_code=${c.corp_code}`);det=await r.json();}}catch{}
+      // [수정1] 조건 제거 - 항상 company API 호출해서 tel_no 포함 모든 정보 수집
+      try{const r=await fetch(`${DART_API}?action=company&corp_code=${c.corp_code}`);det=await r.json();}catch{}
       const get=nm=>{const item=((fin||{}).list||[]).find(x=>x.account_nm===nm);return item?Math.round(parseInt((item.thstrm_amount||"0").replace(/,/g,""))/100000000):null;};
       const getAny=(...nms)=>{for(const nm of nms){const v=get(nm);if(v!=null)return v;}return null;};
       const indNm=(c.industry_nm&&c.industry_nm!=="-")?c.industry_nm:(det?.status==="000"?getIndNm(det.induty_code):"-");
@@ -625,6 +622,8 @@ async function doSearch(){
         founded:c.founded||(det?.status==="000"&&det.est_dt?det.est_dt.slice(0,4):"-"),
         ceo:c.ceo||(det?.status==="000"?det.ceo_nm||"":"-"),
         employees:empNo,homepage:c.homepage||(det?.status==="000"?det.hm_url||"":""),
+        // [수정2] tel 필드 추가
+        tel:c.tel||(det?.status==="000"?det.tel_no||"":""),
         revenue:getAny("매출액","이자수익","순이자수익","영업수익","수입보험료"),
         profit:getAny("영업이익","영업이익(손실)"),assets:getAny("자산총계")};
     }));
@@ -712,7 +711,7 @@ function draw(){
             ${isScored?`<span class="tag" style="background:#f5f3ff;color:#7c3aed">✅ 스코어링됨</span>`:""}
           </div>
           <div style="font-size:12px;color:#64748b;margin-top:3px">
-            ${c.ceo?`👤 ${c.ceo} · `:""}설립 ${c.founded||"-"}년${c.homepage?` · <a href="${c.homepage.match(/^https?:\/\//)?c.homepage:'https://'+c.homepage.replace(/^\/+/,'')}" target="_blank" style="color:#1e40af">홈페이지↗</a>`:""}
+            ${c.ceo?`👤 ${c.ceo} · `:""}설립 ${c.founded||"-"}년${c.tel?` · 📞 ${c.tel}`:""}${c.homepage?` · <a href="${c.homepage.match(/^https?:\/\//)?c.homepage:'https://'+c.homepage.replace(/^\/+/,'')}" target="_blank" style="color:#1e40af">홈페이지↗</a>`:""}
           </div>
           ${c.manual&&(c.contact||c.phone||c.email)?`<div style="font-size:12px;color:#7c3aed;margin-top:3px">${c.contact?`👤 ${c.contact}`:""}${c.phone?` · 📞 ${c.phone}`:""}${c.email?` · ✉ ${c.email}`:""}${c.source?` · 📌 ${c.source}`:""}</div>`:""}
           <div class="mt">
