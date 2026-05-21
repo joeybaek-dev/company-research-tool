@@ -588,7 +588,24 @@ async function doSearch(){
   filtered=[...manualMatched,...pool];
   setStatus(`${filtered.length.toLocaleString()}개 기업 발견 → 재무정보 조회 중...`);
   document.getElementById("rc").innerHTML=`총 <b style="color:#1e40af">${filtered.length.toLocaleString()}</b>개 기업`;
-  if(!filtered.length){document.getElementById("cl").innerHTML=`<div class="empty"><div style="font-size:36px">🔍</div><p>검색 결과가 없어요</p></div>`;endSearch();return;}
+  if(!filtered.length){
+    if(kw){
+      setStatus("DART에 없음 → 금융위 DB 조회 중...");
+      document.getElementById("cl").innerHTML=`<div class="loading"><div class="spinner"></div><div>금융위 기업 DB에서 검색 중...</div></div>`;
+      try{
+        const fr=await fetch("/api/fsc?name="+encodeURIComponent(kw),{signal:AbortSignal.timeout(12000)});
+        const fd=await fr.json();
+        if(fd.ok&&fd.results.length){
+          filtered=[...fd.results];results=[...fd.results];
+          document.getElementById("rc").innerHTML=`<span style="background:#fef9c3;color:#854d0e;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700">📂 금융위 DB 결과 ${fd.results.length}건 (DART 미등재 기업)</span>`;
+          setStatus("✅ 금융위 DB에서 "+fd.results.length+"개 기업 조회 완료");
+          endSearch();draw();return;
+        }
+      }catch(e){console.error("FSC API error:",e);}
+    }
+    document.getElementById("cl").innerHTML=`<div class="empty"><div style="font-size:36px">🔍</div><p>검색 결과가 없어요</p></div>`;
+    setStatus("");endSearch();return;
+  }
   results.push(...manualMatched);
   const nonManual=filtered.filter(c=>!c.manual);
   const targets=nonManual.slice(0,nonManual.length<=150?nonManual.length:50);
