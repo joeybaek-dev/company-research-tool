@@ -252,6 +252,7 @@ input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#1e40af}
         <button class="btn bo bs" onclick="selAll()">전체 선택</button>
         <button class="btn bp bs" onclick="saveSel()">✚ 저장</button>
         <button class="btn bscore bs" onclick="scoreSelected()">✅ 스코어링하기</button>
+        <button class="btn bge bs" id="btn-bulk-csv" onclick="expBulkCSV()" style="display:none">📥 전체 CSV</button>
       </div>
     </div>
     <div style="margin-bottom:8px"><span id="rc" style="font-size:13px;color:#64748b"></span></div>
@@ -742,6 +743,10 @@ function draw(){
   const tot=results.length,tp=Math.ceil(tot/PS)||1,st=(page-1)*PS,pg=results.slice(st,st+PS);
   document.getElementById("rc").innerHTML=`총 <b style="color:#1e40af">${filtered.length.toLocaleString()}</b>개 중 <b>${tot}</b>개 재무정보 조회됨`;
   document.getElementById("bulk-bar").style.display=tot?"flex":"none";updBB();
+  // 전체 CSV 버튼: 검색 결과가 50개 초과일 때만 표시
+  const bulkBtn=document.getElementById("btn-bulk-csv");
+  if(bulkBtn)bulkBtn.style.display=filtered.length>50?"inline-block":"none";
+  if(bulkBtn)bulkBtn.textContent=`📥 전체 ${filtered.length.toLocaleString()}개 CSV`;
   if(!pg.length){document.getElementById("cl").innerHTML=`<div class="empty"><div style="font-size:36px">🔍</div><p>결과가 없어요</p></div>`;document.getElementById("pg").innerHTML="";return;}
   document.getElementById("cl").innerHTML=pg.map(c=>{
     const ck=allSel||chk.has(c.id),sv=saved.some(s=>s.id===c.id),op=dop.has(c.id),isScored=leadList.some(l=>l.company===c.name);
@@ -1115,6 +1120,31 @@ function expLeadCSV(){
   const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`리드목록_${new Date().toLocaleDateString("ko-KR").replace(/\. /g,"-").replace(/\./g,"")}.csv`;a.click();
 }
 const fmt=v=>{if(v==null)return"-";if(Math.abs(v)>=10000)return`${(v/10000).toFixed(1)}조`;if(Math.abs(v)>=1000)return`${(v/1000).toFixed(0)}천억`;if(Math.abs(v)>=1)return`${Math.round(v)}억`;return"-";};
+
+function expBulkCSV(){
+  if(!filtered.length)return alert("검색 결과가 없어요.");
+  const headers=["기업명","업종","지역","상장여부","설립연도","대표자","전화번호","홈페이지","임직원수","매출(억)","DART코드"];
+  const rows=filtered.map(c=>[
+    c.name||"",
+    c.manual?c.industry_nm:(c.industry_nm&&c.industry_nm!=="-"?`${getCorpMajor(c.industry_nm)} (${c.industry_nm})`:"-"),
+    c.region||"-",
+    c.listed?"상장":"비상장",
+    c.founded?c.founded+"년":"-",
+    c.ceo||"-",
+    c.tel||"-",
+    c.homepage||"-",
+    c.employees?c.employees.toLocaleString()+"명":"-",
+    c.revenue!=null?c.revenue+""  :"-",
+    c.corp_code||"-"
+  ].map(v=>`"${String(v).replace(/"/g,"""")}"`) );
+  const csv=[headers.map(h=>`"${h}"`),...rows].map(r=>r.join(",")).join("\n");
+  const b=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);
+  a.download=`기업DB_${new Date().toLocaleDateString("ko-KR").replace(/\. /g,"-").replace(/\.$/,"")}_${filtered.length}개.csv`;
+  a.click();
+  alert(`✅ 총 ${filtered.length.toLocaleString()}개 기업 CSV 내보내기 완료!
+※ DART 미조회 기업은 재무정보가 없을 수 있어요.`);
+}
 document.getElementById("kw").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch();});
 
 async function initData(){
