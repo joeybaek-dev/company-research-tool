@@ -1136,7 +1136,7 @@ function expBulkCSV(){
     c.employees?c.employees.toLocaleString()+"명":"-",
     c.revenue!=null?c.revenue+""  :"-",
     c.corp_code||"-"
-  ].map(v=>`"${String(v).replace(/"/g,"""")}"`) );
+  ].map(v=>'"'+String(v).replace(/"/g,'\"\"')+'"'));
   const csv=[headers.map(h=>`"${h}"`),...rows].map(r=>r.join(",")).join("\n");
   const b=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
   const a=document.createElement("a");a.href=URL.createObjectURL(b);
